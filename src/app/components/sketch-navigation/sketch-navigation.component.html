@@ -1,0 +1,20 @@
+<ul class="nav-pages">
+  <li (click)="onPage(page);page.open=!page.open" *ngFor="let page of pages">
+    <div class="page-nav-name">{{page.data.name}}</div>
+    <ul *ngIf="page.open">
+      <li *ngFor="let layer of page?.data?.layers" >
+        <div>{{layer.name}} ({{layer._class}})</div>
+        <ul>
+          <li *ngFor="let innerLayer of layer.layers" >
+            {{innerLayer.name}} ({{innerLayer._class}})
+            <ul>
+              <li *ngFor="let innerLayer2 of innerLayer?.layers" >
+                {{innerLayer2.name}} ({{innerLayer2._class}})
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>

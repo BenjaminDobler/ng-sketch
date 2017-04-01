@@ -5,6 +5,17 @@
   <title>Sketch</title>
   <base href="/">
 
+  <script>
+    if (window.require) {
+      window.nodeRequire = require;
+    }
+
+    console.log("Node Module Path", window.nodeRequire('electron').remote.getGlobal('sharedObj').nodeModulesPath);
+    nodeRequire('module').globalPaths.push(window.nodeRequire('electron').remote.getGlobal('sharedObj').nodeModulesPath);
+    nodeRequire('module').globalPaths.push('/Users/benjamindobler/Documents/repos/sketch/electron/src/');
+    console.log("Dirname", __dirname);
+  </script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>

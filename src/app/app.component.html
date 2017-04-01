@@ -1,3 +1,14 @@
-<h1>
-  {{title}}
-</h1>
+<div class="main-container">
+
+  <div class="header">
+    <button (click)="sketchService.loadFile()">Load Sketch File</button>
+  </div>
+
+  <div style="width:100%;display: flex;flex:1">
+
+    <sketch-navigation [pages]="sketchService.pages"></sketch-navigation>
+    <sketch-canvas [page]="sketchService.page"></sketch-canvas>
+
+  </div>
+</div>
+

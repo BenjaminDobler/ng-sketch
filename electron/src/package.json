@@ -1,0 +1,19 @@
+{
+  "name": "sample-electron-app",
+  "version": "1.0.0",
+  "description": "Sample electron app",
+  "main": "electron.main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [
+    "Electron",
+    "Angular 2"
+  ],
+  "author": "Benjamin Dobler",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "jszip": "^3.1.3",
+    "electron": "^1.4.1"
+  }
+}
