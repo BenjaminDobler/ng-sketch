@@ -6,10 +6,18 @@ import {Component, Input, OnInit} from '@angular/core';
   styleUrls: ['./sketch-canvas.component.css']
 })
 export class SketchCanvasComponent implements OnInit {
-
+  get rootlayers(): Array<any> {
+    return this._rootlayers;
+  }
 
   @Input()
-  public page: any;
+  set rootlayers(value: Array<any>) {
+    console.log("Root Layers changed ", value)
+    this._rootlayers = value;
+  }
+
+
+  private _rootlayers: Array<any> = [];
 
   constructor() {
   }
