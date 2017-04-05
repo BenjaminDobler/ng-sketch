@@ -1,6 +1,15 @@
 
 
 
+button {
+  background: white;
+  color: black;
+  border: 1px solid black;
+  padding: 5px;
+  font-size: 14px;
+  font-family: sans-serif;
+}
+
 
 .nav-pages {
   list-style: none;
@@ -12,7 +21,10 @@
 }
 
 .header {
+  display: flex;
   height: 60px;
+  background: #0d4671;
+  align-items: center;
 }
 
 
@@ -34,4 +46,13 @@
   right: 0;
   display: flex;
   flex-direction: column;
+}
+
+
+sketch-navigation {
+  width: 300px;
+}
+
+sketch-canvas {
+  flex: 1;
 }

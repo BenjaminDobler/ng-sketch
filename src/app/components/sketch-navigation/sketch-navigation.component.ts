@@ -21,6 +21,20 @@ export class SketchNavigationComponent implements OnInit {
 
   onPage(page) {
     this.sketchService.page = page;
+    this.sketchService.rootLayers = [page.data];
+  }
+
+  highlight(layer) {
+    console.log("Highlight ", layer);
+    this.sketchService.highlightedLayer = layer;
+  }
+
+
+  getFileIcon(cl) {
+    if (cl === 'bitmap') {
+      return 'assets/icons/file-picture.svg';
+    }
+    return '';
   }
 
 }
