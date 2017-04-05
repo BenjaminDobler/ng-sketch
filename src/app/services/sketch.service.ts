@@ -19,6 +19,8 @@ export class SketchService {
 
   loadedImages: Array<any> = [];
 
+  highlightedLayer:any;
+
 
   constructor(private zone: NgZone) {
 
@@ -63,6 +65,20 @@ export class SketchService {
     return {
       x: Number(p[0].trim()) ,
       y: Number(p[1].trim())
+    };
+  }
+
+  getLayerCoords(layer) {
+    let x = 0;
+    let y = 0;
+    while (layer.parent) {
+      x += layer.frame.x;
+      y += layer.frame.y;
+      layer = layer.parent;
+    }
+    return {
+      x: x,
+      y: y
     };
   }
 
