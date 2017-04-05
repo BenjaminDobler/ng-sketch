@@ -1,7 +1,39 @@
+
+
+<svg height="1000" width="1000"  >
+
+
+  <svg:g layer [index]="0" [data]="layer" *ngFor="let layer of rootlayers; let i = index"></svg:g>
+  <!--
+  <svg:defs *ngFor="let mask of page?.data?.masks">
+    <svg:mask>
+      <svg:path [id]="'mask'+mask.id" [attr.d]="getPath(mask.path, mask)"/>
+    </svg:mask>
+  </svg:defs>
+
+
+  <svg:g [layer] *ngFor="let layer of page?.data?.layers; let i = index"
+         [attr.x]="layer.frame.x"
+         [attr.y]="layer.frame.y"
+         [attr.width]="layer.frame.width"
+         [attr.height]="layer.frame.height"
+         [index]="i"
+  [data]="layer">
+
+  </svg:g>
+  -->
+
+</svg>
+
+
+<!--
 <layer [style.left]="pathLayer.frame.x+'px'"
        [style.top]="pathLayer.frame.y+'px'"
        [style.width]="pathLayer.frame.width+'px'"
        [style.height]="pathLayer.frame.height+'px'"
        [data]="pathLayer" [index]="i" *ngFor="let pathLayer of page?.data?.layers; let i = index"></layer>
+-->
 
 
+
+<div class="highlighter" [style.left]="getLeftHighlightStyle()" [style.top]="getTopHighlightStyle()" [style.width]="getWidthHighlightStyle()" [style.height]="getHeightHighlightStyle()"></div>
