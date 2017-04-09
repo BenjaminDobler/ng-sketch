@@ -63,7 +63,9 @@ export class LayerComponent implements OnInit {
       if (index == 0) {
         path += `M ${point.point.x},${point.point.y} `;
       }
-      path += `C ${point.from.x},${point.from.y} ${point.next.to.x},${point.next.to.y} ${point.next.point.x},${point.next.point.y} `;
+      if (index < points.length-1 && !data.isClosed) {
+        path += `C ${point.from.x},${point.from.y} ${point.next.to.x},${point.next.to.y} ${point.next.point.x},${point.next.point.y} `;
+      }
 
     });
     return path;
@@ -124,8 +126,13 @@ export class LayerComponent implements OnInit {
   }
 
   getFillColor(shapeGroup) {
+    console.log("Get Fill Color", shapeGroup )
     if (!shapeGroup.style.fills) {
-      return '#000';
+      return 'none';
+    }
+
+    if (!shapeGroup.style.fills[0].isEnabled) {
+      return 'none';
     }
     const color: any = shapeGroup.style.fills[0].color;
     return this.colorToHex(color);
