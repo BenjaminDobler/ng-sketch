@@ -1,5 +1,13 @@
 
-
+.nav-pages {
+  list-style: none;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-family: sans-serif;
+  background: #000;
+}
 
 ul {
   font-family: sans-serif, Helvetica;
@@ -9,35 +17,46 @@ ul {
 }
 
 .page-nav-name {
-  color: #000;
-  background: #D8D8D8;
-  border-bottom: 1px solid #999999;
+  color: #999;
+  background: #000;
+  border-bottom: 1px solid #419bf9;
 }
 
 
 .page-nav-layer {
-  color: #000;
-  background: #D8D8D8;
+  color: #999;
+  background: #000;
   padding-left: 20px;
   overflow: hidden;
   white-space: nowrap;
+  padding-bottom: 3px;
+  padding-top: 3px;
+}
+
+.highlighted {
+  background: #419bf9;
+  color: #fff;
 }
 
 .page-nav-layer-inner {
-  color: #000;
-  background: #D8D8D8;
+  color: #999;
+  background: #000;
   padding-left: 40px;
   overflow: hidden;
   white-space: nowrap;
+  padding-bottom: 3px;
+  padding-top: 3px;
 }
 
 
 .page-nav-layer-inner-inner {
   color: #000;
-  background: #D8D8D8;
+  background: #000;
   padding-left: 60px;
   overflow: hidden;
   white-space: nowrap;
+  padding-bottom: 3px;
+  padding-top: 3px;
 }
 
 .icon {

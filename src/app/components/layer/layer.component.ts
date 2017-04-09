@@ -72,7 +72,7 @@ export class LayerComponent implements OnInit {
 
   //{0, 0}
   toPoint(p: any, layer) {
-    let coords = this.getLayerCoords(layer);
+    let coords = this.sketchService.getLayerCoords(layer);
     p = p.substring(1);
     p = p.substring(0, p.length - 1);
     p = p.split(',');
@@ -85,19 +85,7 @@ export class LayerComponent implements OnInit {
   }
 
 
-  getLayerCoords(layer) {
-    let x = 0;
-    let y = 0;
-    while (layer.parent) {
-      x += layer.frame.x;
-      y += layer.frame.y;
-      layer = layer.parent;
-    }
-    return {
-      x: x,
-      y: y
-    };
-  }
+
 
 
   getStrokeColor(shapeGroup) {
@@ -118,7 +106,7 @@ export class LayerComponent implements OnInit {
   }
 
   getTransformation(data) {
-    let coords = this.getLayerCoords(data);
+    let coords = this.sketchService.getLayerCoords(data);
     let w = data.frame.width;
     let h = data.frame.height;
     let x = coords.x+(w/2);

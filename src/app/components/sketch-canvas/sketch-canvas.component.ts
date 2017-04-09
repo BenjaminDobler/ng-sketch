@@ -29,14 +29,14 @@ export class SketchCanvasComponent implements OnInit {
 
   getLeftHighlightStyle() {
     if (this.sketchService.highlightedLayer) {
-      return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).x-3+"px";
+      return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).x+"px";
     }
     return '0px';
   }
 
   getTopHighlightStyle() {
     if (this.sketchService.highlightedLayer) {
-      return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).y-3+"px";
+      return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).y+"px";
     }
     return '0px';
   }

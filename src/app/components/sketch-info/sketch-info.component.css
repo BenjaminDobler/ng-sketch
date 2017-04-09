@@ -1,0 +1,10 @@
+
+
+
+:host {
+  width:350px;
+  height:100%;
+  overflow:scroll;
+  background:#000;
+  color:#fff;
+}

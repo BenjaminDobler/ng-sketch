@@ -1,19 +1,34 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnInit} from '@angular/core';
 import {SketchService} from "../../services/sketch.service";
+import {DragAndDropUtil} from "../utils/drag-drop.util";
 
 @Component({
   selector: 'sketch-navigation',
   templateUrl: './sketch-navigation.component.html',
   styleUrls: ['./sketch-navigation.component.css']
 })
-export class SketchNavigationComponent implements OnInit {
+export class SketchNavigationComponent implements OnInit, AfterViewInit {
+
 
 
   @Input()
   public pages: any;
 
 
-  constructor(private sketchService:SketchService) {
+  constructor(private sketchService:SketchService, private el:ElementRef) {
+  }
+
+  ngAfterViewInit(): void {
+    const dd:DragAndDropUtil = new DragAndDropUtil(this.el.nativeElement);
+    let startWidth:number = this.el.nativeElement.clientWidth;
+    dd.mousedown.subscribe(()=>{
+      startWidth = this.el.nativeElement.clientWidth;
+    });
+    dd.mousedrag.subscribe((e:any)=>{
+      console.log(e);
+      let newWidth = startWidth + e.deltaX;
+      this.el.nativeElement.style.width = newWidth + 'px';
+    });
   }
 
   ngOnInit() {
@@ -25,7 +40,6 @@ export class SketchNavigationComponent implements OnInit {
   }
 
   highlight(layer) {
-    console.log("Highlight ", layer);
     this.sketchService.highlightedLayer = layer;
   }
 

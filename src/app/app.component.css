@@ -2,28 +2,28 @@
 
 
 button {
-  background: white;
-  color: black;
-  border: 1px solid black;
+  background: #202123;
+  color: #999999;
+  border: 1px solid #419bf9;
   padding: 5px;
   font-size: 14px;
   font-family: sans-serif;
 }
 
 
-.nav-pages {
-  list-style: none;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  width: 300px;
-  font-family: sans-serif;
+
+.divider {
+  height: 100%;
+  width: 5px;
+  background: #00ff00;
 }
+
+
 
 .header {
   display: flex;
   height: 60px;
-  background: #0d4671;
+  background: #000;
   align-items: center;
 }
 
@@ -46,6 +46,7 @@ button {
   right: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 
@@ -55,4 +56,5 @@ sketch-navigation {
 
 sketch-canvas {
   flex: 1;
+  overflow: hidden;
 }

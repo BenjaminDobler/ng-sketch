@@ -1,15 +1,16 @@
 <ul class="nav-pages">
-  <li *ngFor="let page of pages">
+  <li *ngFor="let page of pages" style="padding-top: 20px">
     <div (click)="onPage(page);page.open=!page.open" class="page-nav-name"><img class="icon" [attr.src]="page?.open?'assets/icons/folder-open.svg':'assets/icons/folder.svg'">{{page.data.name}}</div>
     <ul *ngIf="page.open">
       <li *ngFor="let layer of page?.data?.layers" >
-        <div class="page-nav-layer" (click)="highlight(layer)"><img class="icon" [attr.src]="getFileIcon(layer._class)">{{layer.name}} ({{layer._class}})</div>
-        <ul>
+
+        <div class="page-nav-layer" [class.highlighted]="this.sketchService.highlightedLayer === layer" (click)="highlight(layer);layer.open = !layer.open"><img class="icon" [attr.src]="getFileIcon(layer._class)">{{layer.name}} ({{layer._class}})</div>
+        <ul *ngIf="layer.open" >
           <li *ngFor="let innerLayer of layer.layers" >
-            <div class="page-nav-layer-inner" (click)="highlight(innerLayer)"><img class="icon" [attr.src]="getFileIcon(innerLayer._class)">{{innerLayer.name}} ({{innerLayer._class}})</div>
+            <div class="page-nav-layer-inner" (click)="highlight(innerLayer)" [class.highlighted]="this.sketchService.highlightedLayer === innerLayer"><img class="icon" [attr.src]="getFileIcon(innerLayer._class)">{{innerLayer.name}} ({{innerLayer._class}})</div>
             <ul>
               <li *ngFor="let innerLayer2 of innerLayer?.layers" >
-                <div class="page-nav-layer-inner-inner" (click)="highlight(innerLayer2)">{{innerLayer2.name}} ({{innerLayer2._class}})</div>
+                <div class="page-nav-layer-inner-inner" (click)="highlight(innerLayer2)" [class.highlighted]="this.sketchService.highlightedLayer === innerLayer2">{{innerLayer2.name}} ({{innerLayer2._class}})</div>
               </li>
             </ul>
           </li>

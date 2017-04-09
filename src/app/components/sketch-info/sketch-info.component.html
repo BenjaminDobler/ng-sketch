@@ -1,0 +1,16 @@
+
+<div style="display: flex;justify-content: space-around">
+  <div (click)="selected='JSON'" style="flex: 1;text-align: center;border: 1px solid #419bf9;">JSON</div>
+  <div (click)="selected='SVG'" style="flex: 1;text-align: center;border: 1px solid #419bf9;">SVG</div>
+  <div (click)="selected='Properties'" style="flex: 1;text-align: center;border: 1px solid #419bf9;">Properties</div>
+</div>
+
+
+<pre *ngIf="selected==='JSON'">
+  {{getSelectedLayer()}}
+</pre>
+
+<pre *ngIf="selected==='SVG'">
+  {{getSVG()}}
+</pre>
+

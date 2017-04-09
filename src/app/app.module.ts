@@ -9,6 +9,7 @@ import { LayerComponent } from './components/layer/layer.component';
 import { SketchNavigationComponent } from './components/sketch-navigation/sketch-navigation.component';
 import { SketchCanvasComponent } from './components/sketch-canvas/sketch-canvas.component';
 import {SketchService} from "./services/sketch.service";
+import { SketchInfoComponent } from './components/sketch-info/sketch-info.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import {SketchService} from "./services/sketch.service";
     ShapeComponent,
     LayerComponent,
     SketchNavigationComponent,
-    SketchCanvasComponent
+    SketchCanvasComponent,
+    SketchInfoComponent
   ],
   imports: [
     BrowserModule,

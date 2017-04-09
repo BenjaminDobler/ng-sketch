@@ -13,15 +13,19 @@
   <!-- Shape Group -->
   <svg:defs *ngIf="data._class==='shapeGroup'">
     <linearGradient [attr.x1]="gradient.x1" [attr.y1]="gradient.y1" [attr.x2]="gradient.x2" [attr.y2]="gradient.y2" [attr.id]="gradient.id" *ngFor="let gradient of data.gradients">
-      <stop [attr.stop-color]="stop.color" stop-opacity="1" [attr.offset]="stop.offset" [attr.stop-opacity]="stop.opacity" *ngFor="let stop of gradient.stops"></stop>
+      <stop
+        [attr.stop-color]="stop.color"
+        stop-opacity="1"
+        [attr.offset]="stop.offset"
+        [attr.stop-opacity]="stop.opacity"
+        *ngFor="let stop of gradient.stops">
+      </stop>
     </linearGradient>
-
 
     <svg:path [id]="data.id" [attr.d]="getPath(pathLayer.path, pathLayer)" [attr.transform]="getTransformation(data)"/>
 
-
-
   </svg:defs>
+
   <svg:g *ngIf="data._class==='shapeGroup'">
 
     <svg:use
@@ -35,6 +39,19 @@
 
 
 </svg:g>
+
+
+<svg:text *ngIf="data._class === 'text'"
+          [attr.fill]="'#000'"
+          [attr.font-size]="data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute"
+          [attr.font-family]="data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute"
+          [attr.mask]="'url(#mask'+data.maskId+')'"
+          [attr.x]="data.frame.x"
+          [attr.y]="data.frame.y"
+          [attr.height]="data.frame.width"
+          [attr.width]="data.frame.height">
+  {{data.decodedTextAttributes.NSString}}
+</svg:text>
 
 <svg:image *ngIf="data?._class==='bitmap'"
            [attr.mask]="'url(#mask'+data.maskId+')'"
@@ -55,42 +72,3 @@
 
 
 
-
-<!--
-
-<span *ngIf="data?._class==='shapeGroup'">
-    <svg height="400" width="400" *ngFor="let pathLayer of data.layers; let i = index">
-      <defs>
-        <path [id]="'path-'+i+'-'+index" [attr.d]="getPath(pathLayer.path, pathLayer)"/>
-
-      </defs>
-      <g>
-      <use [attr.stroke]="getStrokeColor(data)" [attr.stroke-width]="getStrokeWidth(data)"
-           [attr.fill]="getFillColor(data)" fill-rule="evenodd"
-           [attr.xlink:href]="'#path-'+i+'-'+index"></use>
-      </g>
-    </svg>
-</span>
-
-
-<span *ngIf="data?._class==='bitmap'">
-  <img style="width: 100%;height:100%" [src]="getImageData(data)">
-</span>
-
-
-<span *ngIf="data?._class==='group'">
-  <layer [style.left]="l.frame.x+'px'"
-         [style.top]="l.frame.y+'px'"
-         [style.width]="l.frame.width+'px'"
-         [style.height]="l.frame.height+'px'"
-         [data]="l" [index]="index+'-'+i" *ngFor="let l of data.layers;let i = index"></layer>
-</span>
-
-<span *ngIf="data?._class==='artboard'">
-  <layer [style.left]="l.frame.x+'px'"
-         [style.top]="l.frame.y+'px'"
-         [style.width]="l.frame.width+'px'"
-         [style.height]="l.frame.height+'px'"
-         [data]="l" [index]="index+'-'+i" *ngFor="let l of data.layers;let i = index"></layer>
-</span>
--->

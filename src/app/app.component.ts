@@ -15,6 +15,27 @@ export class AppComponent {
   }
 
 
+  getSelectedLayer() {
+    return JSON.stringify(this.sketchService.highlightedLayer, null, 4);
+    /*
+    if (this.sketchService.highlightedLayer) {
+      let clone = JSON.parse(JSON.stringify(this.sketchService.highlightedLayer));
+      if (clone.layers) {
+        for(var i in clone.layers) {
+          delete clone.layers[i].parent;
+          if (clone.layers[i].layers) {
+            for(var y in clone.layers[i].layers) {
+              delete clone.layers[i].layers[y].parent;
+            }
+          }
+        }
+      }
+      console.log("Clone", clone)
+      return JSON.stringify(clone);
+    }
+    return "";
+    */
+  }
 
 /*
   showImage(key) {
