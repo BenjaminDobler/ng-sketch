@@ -36,15 +36,34 @@ export class LayerComponent implements OnInit {
   }
 
 
+
+  isRect(data) {
+
+
+    let rectPoints = data.points.map(x=>this.sketchService.toPoint(x.point)).filter((p)=>{
+      if ((p.x === 0 || p.x === 1) && (p.y === 0 || p.y === 1)) {
+        return true;
+      }
+      return false;
+    });
+
+    console.log("Is Rect ", data.points, rectPoints.length === data.points.length);
+
+    return rectPoints.length === data.points.length;
+  }
+
+
   getPath(data, layer) {
+
     const points: Array<any> = [];
-    data.points.forEach((x, index) => {
+    data.points.forEach((x) => {
       points.push({
-        from: this.toPoint(x.curveFrom, layer),
-        to: this.toPoint(x.curveTo, layer),
-        point: this.toPoint(x.point, layer),
+        from: this.sketchService.toPoint(x.curveFrom, layer),
+        to: this.sketchService.toPoint(x.curveTo, layer),
+        point: this.sketchService.toPoint(x.point, layer),
       });
     });
+
 
     points.forEach((p, index) => {
       let next;
@@ -63,29 +82,13 @@ export class LayerComponent implements OnInit {
       if (index == 0) {
         path += `M ${point.point.x},${point.point.y} `;
       }
-      if (index < points.length-1 && !data.isClosed) {
+      if (data.isClosed || index < points.length-1) {
         path += `C ${point.from.x},${point.from.y} ${point.next.to.x},${point.next.to.y} ${point.next.point.x},${point.next.point.y} `;
       }
 
     });
     return path;
   }
-
-
-  //{0, 0}
-  toPoint(p: any, layer) {
-    let coords = this.sketchService.getLayerCoords(layer);
-    p = p.substring(1);
-    p = p.substring(0, p.length - 1);
-    p = p.split(',');
-
-
-    return {
-      x: coords.x + Number(p[0].trim()) * layer.frame.width,
-      y: coords.y + Number(p[1].trim()) * layer.frame.height
-    };
-  }
-
 
 
 
@@ -104,6 +107,9 @@ export class LayerComponent implements OnInit {
     const g: number = Math.round(color.green * 255);
     const b: number = Math.round(color.blue * 255);
     const hex: string = (r << 16 | g << 8 | b).toString(16).toUpperCase();
+    if (hex == '0') {
+      return '#000';
+    }
     return '#' + hex;
   }
 
@@ -126,7 +132,6 @@ export class LayerComponent implements OnInit {
   }
 
   getFillColor(shapeGroup) {
-    console.log("Get Fill Color", shapeGroup )
     if (!shapeGroup.style.fills) {
       return 'none';
     }
@@ -143,7 +148,6 @@ export class LayerComponent implements OnInit {
       return shapeGroup.style.borders[0].thickness;
     }
     return 0;
-    //return 3;
   }
 
   getImageData(layer) {
@@ -153,5 +157,7 @@ export class LayerComponent implements OnInit {
 
     return '';
   }
+
+
 
 }

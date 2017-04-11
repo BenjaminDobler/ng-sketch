@@ -90,7 +90,7 @@ export class SketchService {
     const h = data.frame.height;
     const x = coords.x + (w / 2);
     const y = coords.y + (h / 2);
-    return 'rotate(' + (-1 * data.rotation) + ' ' + x + ' ' + y + ')';
+    return 'rotate(' + (-1 * this.getLayerRotation(data).rotation) + ' ' + x + ' ' + y + ')';
   }
 
 
@@ -138,6 +138,21 @@ export class SketchService {
     };
   }
 
+
+  getLayerRotation(layer) {
+    let rotation = 0;
+    let parentLayer:any;
+    while (layer.parent) {
+      parentLayer = this.objects[layer.parent];
+      rotation += layer.rotation;
+      layer = parentLayer;
+    }
+    return {
+      rotation: rotation,
+    };
+  }
+
+
   getStrokeColor(shapeGroup) {
     if (!shapeGroup.style.borders) {
       return '#000';
@@ -170,8 +185,22 @@ export class SketchService {
     }
   }
 
+  getFontSize(data) {
+    if (data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute) {
+      return data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute;
+
+    }
+    return 10;
+  }
+
+  getFontFamily(data) {
+    if (data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute) {
+      return data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute
+    }
+    return 'Helvetica';
+  }
+
   getImageData(layer) {
-    console.log('GET IMAGE DATA ', layer);
     if (this.loadedImages[layer.image._ref + '.png']) {
       return this.loadedImages[layer.image._ref + '.png'];
     }
@@ -211,14 +240,35 @@ export class SketchService {
 
     console.log('Data ', data);
 
+    const w: any = window;
+    const b: any = w.Buffer;
+
+
+
+    if (data._class === 'shapeGroup') {
+      console.log("SHAPE GROUP" , data);
+    }
 
     if (data._class === 'text') {
       console.log(data.attributedString.archivedAttributedString._archive);
       const archiveData: string = data.attributedString.archivedAttributedString._archive;
 
+      if (data.style.textStyle) {
+        let arch = data.style.textStyle.encodedAttributes.NSParagraphStyle._archive;
+        const buf2 = b.from(archiveData, 'base64');
+        this.bplistParser.parseFile(buf2,  (err, obj)=> {
+          if (err) throw err;
+          const parser: NSArchiveParser = new NSArchiveParser();
+          data.___MSAttributedStringFontAttribute = parser.parse(obj);
+        });
 
-      const w: any = window;
-      const b: any = w.Buffer;
+      }
+
+
+
+
+
+
       const buf = b.from(archiveData, 'base64');
 
 
@@ -237,6 +287,7 @@ export class SketchService {
 
         const gradient = data.style.fills[0].gradient;
         const linearGradient: any = {};
+        linearGradient.gradientType = gradient.gradientType;
         const from = this.toPoint(gradient.from);
         const to = this.toPoint(gradient.to);
         linearGradient.x1 = from.x * 100 + '%';
@@ -257,6 +308,9 @@ export class SketchService {
         });
 
         data.gradients = [linearGradient];
+
+        data.linearGradients = data.gradients.filter(x=>x.gradientType === 0);
+        data.radialGradients = data.gradients.filter(x=>x.gradientType === 1);
 
 
       }

@@ -8,8 +8,11 @@ import { ShapeComponent } from './components/shape/shape.component';
 import { LayerComponent } from './components/layer/layer.component';
 import { SketchNavigationComponent } from './components/sketch-navigation/sketch-navigation.component';
 import { SketchCanvasComponent } from './components/sketch-canvas/sketch-canvas.component';
-import {SketchService} from "./services/sketch.service";
+import { SketchService } from "./services/sketch.service";
 import { SketchInfoComponent } from './components/sketch-info/sketch-info.component';
+import {SketchRectangleComponent} from "./components/elements/sketch-rectangle/sketch-rectangle.component";
+import {SketchTextComponent} from "./components/elements/sketch-text/sketch-text.component";
+import { SketchImageComponent } from './components/elements/sketch-image/sketch-image.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +21,10 @@ import { SketchInfoComponent } from './components/sketch-info/sketch-info.compon
     LayerComponent,
     SketchNavigationComponent,
     SketchCanvasComponent,
-    SketchInfoComponent
+    SketchInfoComponent,
+    SketchRectangleComponent,
+    SketchTextComponent,
+    SketchImageComponent
   ],
   imports: [
     BrowserModule,

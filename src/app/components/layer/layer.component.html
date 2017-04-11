@@ -1,18 +1,24 @@
 
 
+<!-- Define all masks in this group -->
 <svg:defs *ngFor="let mask of data?.masks">
-
   <svg:mask [attr.id]="'mask'+mask.id" *ngFor="let maskLayer of mask.layers">
-  <svg:path [attr.d]="getPath(maskLayer.path, maskLayer)" fill="white"/>
+    <svg:rect [sketch-rectangle] [data]="maskLayer" *ngIf="isRect(maskLayer.path)"></svg:rect>
+    <svg:path [attr.d]="getPath(maskLayer.path, maskLayer)" fill="white" *ngIf="!isRect(maskLayer.path)"/>
   </svg:mask>
-
 </svg:defs>
 
 
-<svg:g  *ngFor="let pathLayer of data?.layers; let i = index">
+<!--<svg:g *ngFor="let pathLayer of data?.layers; let i = index">
   <!-- Shape Group -->
   <svg:defs *ngIf="data._class==='shapeGroup'">
-    <linearGradient [attr.x1]="gradient.x1" [attr.y1]="gradient.y1" [attr.x2]="gradient.x2" [attr.y2]="gradient.y2" [attr.id]="gradient.id" *ngFor="let gradient of data.gradients">
+
+    <linearGradient [attr.x1]="gradient.x1"
+                    [attr.y1]="gradient.y1"
+                    [attr.x2]="gradient.x2"
+                    [attr.y2]="gradient.y2"
+                    [attr.id]="gradient.id"
+                    *ngFor="let gradient of data.linearGradients">
       <stop
         [attr.stop-color]="stop.color"
         stop-opacity="1"
@@ -22,44 +28,59 @@
       </stop>
     </linearGradient>
 
-    <svg:path [id]="data.id" [attr.d]="getPath(pathLayer.path, pathLayer)" [attr.transform]="getTransformation(data)"/>
+
+
+    <radialGradient [attr.x1]="gradient.x1"
+                    [attr.y1]="gradient.y1"
+                    [attr.x2]="gradient.x2"
+                    [attr.y2]="gradient.y2"
+                    [attr.id]="gradient.id"
+                    *ngFor="let gradient of data.radialGradients">
+      <stop
+        [attr.stop-color]="stop.color"
+        stop-opacity="1"
+        [attr.offset]="stop.offset"
+        [attr.stop-opacity]="stop.opacity"
+        *ngFor="let stop of gradient.stops">
+      </stop>
+    </radialGradient>
+
+
+    <svg:defs *ngFor="let pathLayer of data?.layers; let i = index">
+      <svg:rect [sketch-rectangle] [id]="pathLayer.id" [data]="pathLayer" *ngIf="isRect(pathLayer.path)"></svg:rect>
+      <svg:path [id]="pathLayer.id" [attr.d]="getPath(pathLayer.path, pathLayer)" [attr.transform]="getTransformation(data)" *ngIf="!isRect(pathLayer.path)"/>
+    </svg:defs>
+
 
   </svg:defs>
 
   <svg:g *ngIf="data._class==='shapeGroup'">
 
+    <svg:g *ngFor="let ref of data?.layers">
     <svg:use
       [attr.mask]="'url(#mask'+data.maskId+')'"
       [attr.stroke]="getStrokeColor(data)"
       [attr.stroke-width]="getStrokeWidth(data)"
       [attr.fill]="getFill(data)"
       fill-rule="evenodd"
-      [attr.xlink:href]="'#'+data.id"></svg:use>
+      [attr.xlink:href]="'#'+ref.id"></svg:use>
+    </svg:g>
   </svg:g>
 
 
-</svg:g>
+<!--</svg:g>-->
 
 
-<svg:text *ngIf="data._class === 'text'"
-          [attr.fill]="'#000'"
-          [attr.font-size]="data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontSizeAttribute"
-          [attr.font-family]="data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute"
-          [attr.mask]="'url(#mask'+data.maskId+')'"
-          [attr.x]="data.frame.x"
-          [attr.y]="data.frame.y"
-          [attr.height]="data.frame.width"
-          [attr.width]="data.frame.height">
-  {{data.decodedTextAttributes.NSString}}
-</svg:text>
 
-<svg:image *ngIf="data?._class==='bitmap'"
-           [attr.mask]="'url(#mask'+data.maskId+')'"
-           [attr.x]="data.frame.x"
-           [attr.y]="data.frame.y"
-           [attr.xlink:href]="getImageData(data)"
-           [attr.height]="data.frame.width"
-           [attr.width]="data.frame.height"/>
+
+
+
+
+
+
+<svg:text sketch-text [id]="data.id" [data]="data" *ngIf="data._class === 'text'"></svg:text>
+
+<svg:image sketch-image [attr.id]="data.id" [data]="data" *ngIf="data?._class==='bitmap'"></svg:image>
 
 
 <svg:g *ngIf="data?._class==='group' || data?._class==='page' || data?._class==='artboard'">
