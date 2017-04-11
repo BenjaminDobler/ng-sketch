@@ -16,4 +16,5 @@
   border: 1px solid #419bf9;
   transition-property: left,top,width,height;
   transition-duration: 350ms;
+  pointer-events: none;
 }

@@ -21,7 +21,7 @@
       "styles": [
         "styles.css"
       ],
-      "scripts": ["../scripts/BigInteger.min.js", "../scripts/bplist-parser.js"],
+      "scripts": ["../scripts/BigInteger.min.js", "../scripts/bplist-parser.js", "../node_modules/paper/dist/paper-full.js"],
       "environmentSource": "environments/environment.ts",
       "environments": {
         "dev": "environments/environment.ts",

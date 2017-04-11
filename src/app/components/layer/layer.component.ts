@@ -53,10 +53,10 @@ export class LayerComponent implements OnInit {
   }
 
 
-  getPath(data, layer) {
-
+  getPath(layer) {
+    console.log("Get Path ", layer)
     const points: Array<any> = [];
-    data.points.forEach((x) => {
+    layer.path.points.forEach((x) => {
       points.push({
         from: this.sketchService.toPoint(x.curveFrom, layer),
         to: this.sketchService.toPoint(x.curveTo, layer),
@@ -82,11 +82,43 @@ export class LayerComponent implements OnInit {
       if (index == 0) {
         path += `M ${point.point.x},${point.point.y} `;
       }
-      if (data.isClosed || index < points.length-1) {
+      if (layer.path.isClosed || index < points.length-1) {
         path += `C ${point.from.x},${point.from.y} ${point.next.to.x},${point.next.to.y} ${point.next.point.x},${point.next.point.y} `;
       }
 
     });
+
+
+
+    if (layer.booleanOperationObjects && layer.booleanOperationObjects.length > 0) {
+      console.log("Apply boolean operations!");
+      let w:any = window;
+
+      var canvas = document.getElementById('myCanvas');
+      // Create an empty project and a view for the canvas:
+      w.paper.setup(canvas);
+      let paper:any = w.paper;
+      let paperPath = new paper.Path(path);
+
+
+      layer.booleanOperationObjects.forEach((b)=>{
+        // for now assume it` a rectangle
+        let rect:any = {};
+        let p:any = this.sketchService.toPoint(b.path.points[0].point, b);
+        rect.x = p.x;
+        rect.y = p.y;
+        rect.width = b.frame.width;
+        rect.height = b.frame.height;
+        var r = paper.Path.Rectangle(rect.x, rect.y, rect.width, rect.height);
+        paperPath = paperPath.subtract(r);
+      });
+
+
+      console.log("ONION PATH", paperPath.pathData);//w.paper.project.exportSVG({asString:true}));
+      return paperPath.pathData;
+
+    }
+
     return path;
   }
 

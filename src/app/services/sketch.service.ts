@@ -52,6 +52,7 @@ export class SketchService {
 
 
   getPath(data, layer) {
+    console.log("Get Path ", data, layer);
     const points: Array<any> = [];
     data.points.forEach((x, index) => {
       points.push({
@@ -247,6 +248,21 @@ export class SketchService {
 
     if (data._class === 'shapeGroup') {
       console.log("SHAPE GROUP" , data);
+
+      let currentBooleanOperationTarget;
+      data.layers.forEach((l,index)=>{
+        console.log("Shape Group Layer Boolean "+l.name, l.booleanOperation);
+        if (l.booleanOperation!=-1) {
+          currentBooleanOperationTarget.booleanOperationObjects.push(l);
+        } else {
+          currentBooleanOperationTarget = l;
+          currentBooleanOperationTarget.booleanOperationObjects = [];
+        }
+      });
+
+      console.log("Shape Group After " + data.name, data);
+
+
     }
 
     if (data._class === 'text') {

@@ -47,8 +47,8 @@
 
 
     <svg:defs *ngFor="let pathLayer of data?.layers; let i = index">
-      <svg:rect [sketch-rectangle] [id]="pathLayer.id" [data]="pathLayer" *ngIf="isRect(pathLayer.path)"></svg:rect>
-      <svg:path [id]="pathLayer.id" [attr.d]="getPath(pathLayer.path, pathLayer)" [attr.transform]="getTransformation(data)" *ngIf="!isRect(pathLayer.path)"/>
+      <svg:rect [sketch-rectangle] [id]="pathLayer.id" [data]="pathLayer" *ngIf="isRect(pathLayer.path) && pathLayer.booleanOperation!=1"></svg:rect>
+      <svg:path [id]="pathLayer.id" [attr.d]="getPath(pathLayer)" [attr.transform]="getTransformation(data)" *ngIf="!isRect(pathLayer.path) && pathLayer.booleanOperation!=1"/>
     </svg:defs>
 
 
