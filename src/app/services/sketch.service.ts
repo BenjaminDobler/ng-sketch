@@ -1,18 +1,14 @@
 import {Injectable, NgZone} from '@angular/core';
 import {NSArchiveParser} from './NSArchiveParser';
 import {Sketch2Svg} from './sketch2svg';
+import {SketchLoader} from "./sketch.loader";
 
 @Injectable()
 export class SketchService {
 
 
-  private JSZip: any;
-  zip: any;
-
   public images: Array<string> = [];
   pages: Array<any> = [];
-
-  private fs: any;
 
   page: any;
 
@@ -23,6 +19,8 @@ export class SketchService {
   highlightedLayer: any;
   bplistParser: any;
 
+  sketchLoader: SketchLoader;
+
 
   constructor(private zone: NgZone) {
 
@@ -30,37 +28,41 @@ export class SketchService {
 
 
   public loadFile() {
-    this.page = null;
-    this.rootLayers = [];
-    this.pages = [];
+
+
     const w: any = window;
-    const electron = w.nodeRequire('electron');
-    this.fs = w.nodeRequire('fs');
-    this.JSZip = w.nodeRequire('jszip');
     this.bplistParser = w.nodeRequire('bplist-parser');
 
-    electron.remote.dialog.showOpenDialog({title: 'Select Skecth file'}, (file) => {
-      this.readSketchFile(file[0]);
-    });
+    this.sketchLoader = new SketchLoader();
+    this.sketchLoader.openDialog()
+      .then((data: any) => {
+        data.pages.forEach((page, pageNum) => {
+          this.analyzePage(page.data, null, pageNum + '', '');
+        });
+        this.pages = data.pages;
+        this.loadedImages = data.imageMap;
+        this.zone.run(() => {
+          this.selectPage(this.pages[0]);
+        });
+      });
+  }
 
+  public selectPage(page) {
+    this.page = page;
+    this.rootLayers = [page.data];
   }
 
 
-  generateId(level) {
-
-  }
-
-
-  getPath(data, layer) {
-    console.log("Get Path ", data, layer);
+  getPath(layer) {
     const points: Array<any> = [];
-    data.points.forEach((x, index) => {
+    layer.path.points.forEach((x) => {
       points.push({
         from: this.toPoint(x.curveFrom, layer),
         to: this.toPoint(x.curveTo, layer),
         point: this.toPoint(x.point, layer),
       });
     });
+
 
     points.forEach((p, index) => {
       let next;
@@ -74,16 +76,55 @@ export class SketchService {
     });
 
 
-    let path = '';
+    let path: string = '';
     points.forEach((point, index) => {
       if (index == 0) {
         path += `M ${point.point.x},${point.point.y} `;
       }
-      path += `C ${point.from.x},${point.from.y} ${point.next.to.x},${point.next.to.y} ${point.next.point.x},${point.next.point.y} `;
+      if (layer.path.isClosed || index < points.length - 1) {
+        path += `C ${point.from.x},${point.from.y} ${point.next.to.x},${point.next.to.y} ${point.next.point.x},${point.next.point.y} `;
+      }
 
     });
+
+
+    if (layer.booleanOperationObjects && layer.booleanOperationObjects.length > 0) {
+      let w: any = window;
+
+      var canvas = document.getElementById('myCanvas');
+      // Create an empty project and a view for the canvas:
+      w.paper.setup(canvas);
+      let paper: any = w.paper;
+      let paperPath = new paper.Path(path);
+
+
+      layer.booleanOperationObjects.forEach((b) => {
+        // for now assume it` a rectangle
+        let rect: any = {};
+        let p: any = this.toPoint(b.path.points[0].point, b);
+        rect.x = p.x;
+        rect.y = p.y;
+        rect.width = b.frame.width;
+        rect.height = b.frame.height;
+        var r = paper.Path.Rectangle(rect.x, rect.y, rect.width, rect.height);
+        paperPath = paperPath.subtract(r);
+      });
+      return paperPath.pathData;
+    }
+
     return path;
   }
+
+  isRect(data): boolean {
+    const rectPoints = data.points.map(x => this.toPoint(x.point)).filter((p) => {
+      if ((p.x === 0 || p.x === 1) && (p.y === 0 || p.y === 1)) {
+        return true;
+      }
+      return false;
+    });
+    return rectPoints.length === data.points.length;
+  }
+
 
   getTransformation(data) {
     const coords = this.getLayerCoords(data);
@@ -126,7 +167,7 @@ export class SketchService {
   getLayerCoords(layer) {
     let x = 0;
     let y = 0;
-    let parentLayer:any;
+    let parentLayer: any;
     while (layer.parent) {
       parentLayer = this.objects[layer.parent];
       x += layer.frame.x;
@@ -142,7 +183,7 @@ export class SketchService {
 
   getLayerRotation(layer) {
     let rotation = 0;
-    let parentLayer:any;
+    let parentLayer: any;
     while (layer.parent) {
       parentLayer = this.objects[layer.parent];
       rotation += layer.rotation;
@@ -170,20 +211,24 @@ export class SketchService {
     //return 3;
   }
 
-  getFillColor(shapeGroup) {
-    if (!shapeGroup.style.fills) {
-      return '#000';
-    }
-    const color: any = shapeGroup.style.fills[0].color;
-    return this.colorToHex(color);
-  }
-
   getFill(data) {
     if (!data.gradients) {
       return this.getFillColor(data);
     } else {
       return 'url(#' + data.gradients[0].id + ')';
     }
+  }
+
+  getFillColor(shapeGroup) {
+    if (!shapeGroup.style.fills) {
+      return 'none';
+    }
+
+    if (!shapeGroup.style.fills[0].isEnabled) {
+      return 'none';
+    }
+    const color: any = shapeGroup.style.fills[0].color;
+    return this.colorToHex(color);
   }
 
   getFontSize(data) {
@@ -205,7 +250,6 @@ export class SketchService {
     if (this.loadedImages[layer.image._ref + '.png']) {
       return this.loadedImages[layer.image._ref + '.png'];
     }
-    console.log('NOT FOUND');
     return '';
   }
 
@@ -229,6 +273,7 @@ export class SketchService {
   private analyzePage(data: any, parent: any, level: string, maskId: string) {
 
     data.$$id = this.generateUUID();
+    data.$$transform = this.getTransformation(data);
     this.objects[data.$$id] = data;
     data.masks = [];
     if (parent) {
@@ -238,51 +283,23 @@ export class SketchService {
     data.maskId = maskId;
     data.id = level;
 
-
-    console.log('Data ', data);
-
     const w: any = window;
     const b: any = w.Buffer;
 
 
-
-    if (data._class === 'shapeGroup') {
-      console.log("SHAPE GROUP" , data);
-
-      let currentBooleanOperationTarget;
-      data.layers.forEach((l,index)=>{
-        console.log("Shape Group Layer Boolean "+l.name, l.booleanOperation);
-        if (l.booleanOperation!=-1) {
-          currentBooleanOperationTarget.booleanOperationObjects.push(l);
-        } else {
-          currentBooleanOperationTarget = l;
-          currentBooleanOperationTarget.booleanOperationObjects = [];
-        }
-      });
-
-      console.log("Shape Group After " + data.name, data);
-
-
-    }
-
     if (data._class === 'text') {
-      console.log(data.attributedString.archivedAttributedString._archive);
       const archiveData: string = data.attributedString.archivedAttributedString._archive;
 
       if (data.style.textStyle) {
         let arch = data.style.textStyle.encodedAttributes.NSParagraphStyle._archive;
         const buf2 = b.from(archiveData, 'base64');
-        this.bplistParser.parseFile(buf2,  (err, obj)=> {
+        this.bplistParser.parseFile(buf2, (err, obj) => {
           if (err) throw err;
           const parser: NSArchiveParser = new NSArchiveParser();
           data.___MSAttributedStringFontAttribute = parser.parse(obj);
         });
 
       }
-
-
-
-
 
 
       const buf = b.from(archiveData, 'base64');
@@ -295,12 +312,15 @@ export class SketchService {
       });
 
 
+      data.$$fontSize = this.getFontSize(data);
+      data.$$fontFamily = this.getFontFamily(data);
+      data.$$text = data.decodedTextAttributes.NSString;
+
+
     }
 
     if (data.style && data.style.fills && data.style.fills.length > 0) {
       if (data.style.fills[0].gradient) {
-        console.log('Has gradient! ');
-
         const gradient = data.style.fills[0].gradient;
         const linearGradient: any = {};
         linearGradient.gradientType = gradient.gradientType;
@@ -325,14 +345,51 @@ export class SketchService {
 
         data.gradients = [linearGradient];
 
-        data.linearGradients = data.gradients.filter(x=>x.gradientType === 0);
-        data.radialGradients = data.gradients.filter(x=>x.gradientType === 1);
+        data.linearGradients = data.gradients.filter(x => x.gradientType === 0);
+        data.radialGradients = data.gradients.filter(x => x.gradientType === 1);
 
 
       }
     }
 
-    console.log('Data ', data);
+    if (data._class === 'shapeGroup') {
+      let currentBooleanOperationTarget;
+      data.layers.forEach((l, index) => {
+        l.parent = data.$$id;
+        if (l.booleanOperation != -1) {
+          currentBooleanOperationTarget.booleanOperationObjects.push(l);
+        } else {
+          currentBooleanOperationTarget = l;
+          currentBooleanOperationTarget.booleanOperationObjects = [];
+        }
+
+        l.$$isRect = this.isRect(l.path);
+
+      });
+
+      data.layers.forEach((l) => {
+        if (!l.$$isRect && l.booleanOperation !== 1) {
+          l.$$path = this.getPath(l);
+        } else if (l.$$isRect) {
+
+          l.$$rx = 0;
+          if (l.fixedRadius) {
+            l.$$rx = l.fixedRadius;
+          }
+        }
+        let p: any = this.toPoint(l.path.points[0].point, l);
+        l.$$x = p.x;
+        l.$$y = p.y;
+        l.$$transform = this.getTransformation(l);
+
+
+      });
+
+      data.$$strokeColor = this.getStrokeColor(data);
+      data.$$fill = this.getFill(data);
+      data.$$strokeWidth = this.getStrokeWidth(data);
+
+    }
 
 
     for (const i in data) {
@@ -353,73 +410,6 @@ export class SketchService {
       }
     }
 
-
-  }
-
-
-  private readSketchFile(path: string) {
-
-    const loadedData = {};
-
-    this.fs.readFile(path, (err, data) => {
-      if (err) throw err;
-      this.JSZip.loadAsync(data).then((zip) => {
-        this.zip = zip;
-        let pageNum = 0;
-        // zip contains a json file that describes all the directory & files in the zip file
-        Object.keys(zip.files).forEach((key: string) => {
-          console.log(key);
-
-          if (key.startsWith('pages')) {
-            console.log('Pages ', key);
-            this.zip.file(key).async('string')
-              .then((data) => {
-                console.log('Data', data);
-                const json = JSON.parse(data);
-                this.zone.run(() => {
-                  this.analyzePage(json, null, pageNum + '', '');
-                  console.log('Analyzed Data ', json);
-
-
-                  this.pages.push({
-                    data: json,
-                    file: key
-                  });
-                });
-              });
-            pageNum++;
-          }
-
-          if (key.endsWith('png')) {
-            this.zone.run(() => {
-              this.images.push(key);
-              this.loadImage(key);
-
-            });
-
-          }
-
-        });
-
-      });
-
-    });
-
-
-    setTimeout(() => {
-      const converter: Sketch2Svg = new Sketch2Svg();
-      console.log(converter.convert(this.pages[0].data, this));
-    }, 3000);
-
-
-  }
-
-
-  loadImage(id) {
-    this.zip.file(id).async('base64')
-      .then((data64) => {
-        this.loadedImages[id] = 'data:image/jpeg;base64,' + data64;
-      });
 
   }
 

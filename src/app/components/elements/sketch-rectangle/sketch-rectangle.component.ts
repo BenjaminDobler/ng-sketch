@@ -10,17 +10,6 @@ export class SketchRectangleComponent implements OnInit {
 
   @Input()
   set data(value: any) {
-    this.rect.width = value.frame.width;
-    this.rect.height = value.frame.height;
-    console.log(value)
-    let p:any = this.sketchService.toPoint(value.path.points[0].point, value);
-    this.rect.x = p.x;
-    this.rect.y = p.y;
-    this.rect.rx = 0;
-    this.rect.transform = this.sketchService.getTransformation(value);
-    if (value.fixedRadius) {
-      this.rect.rx = value.fixedRadius;
-    }
     this._data = value;
   }
 
@@ -29,14 +18,7 @@ export class SketchRectangleComponent implements OnInit {
   private _data:any;
 
   constructor(private sketchService:SketchService) {
-    console.log("Init Rectangle!");
-    this.rect = {
-      x: 0,
-      y: 0,
-      width: 0,
-      height: 0,
-      fill:'none'
-    };
+
   }
 
   ngOnInit() {
@@ -45,32 +27,32 @@ export class SketchRectangleComponent implements OnInit {
 
   @HostBinding('attr.x')
   public get x():number {
-    return this.rect.x;
+    return this._data.$$x;
   }
 
   @HostBinding('attr.y')
   public get y():number{
-    return this.rect.y;
+    return this._data.$$y;
   }
 
   @HostBinding('attr.height')
   public get height():number {
-    return this.rect.height;
+    return this._data.frame.height;
   }
 
   @HostBinding('attr.width')
   public get width():number {
-    return this.rect.width;
+    return this._data.frame.width;
   }
 
   @HostBinding('attr.rx')
   public get rx():number {
-    return this.rect.rx;
+    return this._data.$$rx;
   }
 
   @HostBinding('attr.transform')
-  public get transform():number {
-    return this.rect.transform;
+  public get transform():string {
+    return this._data.$$transform;
   }
 
 

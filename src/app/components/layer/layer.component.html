@@ -3,8 +3,8 @@
 <!-- Define all masks in this group -->
 <svg:defs *ngFor="let mask of data?.masks">
   <svg:mask [attr.id]="'mask'+mask.id" *ngFor="let maskLayer of mask.layers">
-    <svg:rect [sketch-rectangle] [data]="maskLayer" *ngIf="isRect(maskLayer.path)"></svg:rect>
-    <svg:path [attr.d]="getPath(maskLayer.path, maskLayer)" fill="white" *ngIf="!isRect(maskLayer.path)"/>
+    <svg:rect [sketch-rectangle] [data]="maskLayer" *ngIf="maskLayer.$$isRect"></svg:rect>
+    <svg:path [attr.d]="maskLayer.$$path" fill="white" *ngIf="!maskLayer.$$isRect"/>
   </svg:mask>
 </svg:defs>
 
@@ -47,8 +47,8 @@
 
 
     <svg:defs *ngFor="let pathLayer of data?.layers; let i = index">
-      <svg:rect [sketch-rectangle] [id]="pathLayer.id" [data]="pathLayer" *ngIf="isRect(pathLayer.path) && pathLayer.booleanOperation!=1"></svg:rect>
-      <svg:path [id]="pathLayer.id" [attr.d]="getPath(pathLayer)" [attr.transform]="getTransformation(data)" *ngIf="!isRect(pathLayer.path) && pathLayer.booleanOperation!=1"/>
+      <svg:rect [sketch-rectangle] [id]="pathLayer.id" [data]="pathLayer" *ngIf="pathLayer.$$isRect && pathLayer.booleanOperation!=1"></svg:rect>
+      <svg:path [id]="pathLayer.id" [attr.d]="pathLayer.$$path" [attr.transform]="pathLayer.$$transform" *ngIf="!pathLayer.$$isRect && pathLayer.booleanOperation!=1"/>
     </svg:defs>
 
 
@@ -59,9 +59,9 @@
     <svg:g *ngFor="let ref of data?.layers">
     <svg:use
       [attr.mask]="'url(#mask'+data.maskId+')'"
-      [attr.stroke]="getStrokeColor(data)"
-      [attr.stroke-width]="getStrokeWidth(data)"
-      [attr.fill]="getFill(data)"
+      [attr.stroke]="data.$$strokeColor"
+      [attr.stroke-width]="data.$$strokeWidth"
+      [attr.fill]="data.$$fill"
       fill-rule="evenodd"
       [attr.xlink:href]="'#'+ref.id"></svg:use>
     </svg:g>

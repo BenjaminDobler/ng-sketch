@@ -28,7 +28,7 @@ export class SketchImageComponent implements OnInit {
     this.properties.y = p.y;
     this.properties.width = this._data.frame.width;
     this.properties.height = this._data.frame.height;
-    this.properties.transform = this.sketchService.getTransformation(this._data);
+    this.properties.transform = this._data.$$transform;//this.sketchService.getTransformation(this._data);
     this.properties.mask = 'url(#mask' + this._data.maskId + ')';
     this.properties.imageData = this.sketchService.getImageData(this._data)
   }
