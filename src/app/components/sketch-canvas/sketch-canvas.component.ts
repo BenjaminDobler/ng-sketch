@@ -13,7 +13,6 @@ export class SketchCanvasComponent implements OnInit {
 
   @Input()
   set rootlayers(value: Array<any>) {
-    console.log("Root Layers changed ", value)
     this._rootlayers = value;
   }
 
@@ -43,7 +42,6 @@ export class SketchCanvasComponent implements OnInit {
 
   getWidthHighlightStyle() {
     if (this.sketchService.highlightedLayer) {
-      console.log("this.sketchService.highlightedLayer",this.sketchService.highlightedLayer)
       return this.sketchService.highlightedLayer.frame.width+'px';
     }
     return '0px';

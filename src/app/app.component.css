@@ -56,5 +56,5 @@ sketch-navigation {
 
 sketch-canvas {
   flex: 1;
-  overflow: hidden;
+  overflow: scroll;
 }

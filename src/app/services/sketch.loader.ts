@@ -31,7 +31,6 @@ export class SketchLoader {
           }
           ;
           this.readFile(data).then((data) => {
-            console.log("Radddddd", data);
             resolve(data);
           });
         });

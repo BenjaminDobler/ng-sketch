@@ -21,6 +21,8 @@ export class SketchService {
 
   sketchLoader: SketchLoader;
 
+  layerNameMap = {};
+
 
   constructor(private zone: NgZone) {
 
@@ -44,6 +46,10 @@ export class SketchService {
         this.zone.run(() => {
           this.selectPage(this.pages[0]);
         });
+
+
+        //let svg:Sketch2Svg = new Sketch2Svg();
+        //console.log(svg.convert(this.pages[0].data, this, 'myOval'));
       });
   }
 
@@ -98,16 +104,35 @@ export class SketchService {
       let paperPath = new paper.Path(path);
 
 
+      let operations = layer.booleanOperationObjects.map(x=>x.booleanOperation);
+      operations = [layer.booleanOperation,...operations];
+      console.log("GET PATH Layer ", operations);
+
+
       layer.booleanOperationObjects.forEach((b) => {
-        // for now assume it` a rectangle
-        let rect: any = {};
-        let p: any = this.toPoint(b.path.points[0].point, b);
-        rect.x = p.x;
-        rect.y = p.y;
-        rect.width = b.frame.width;
-        rect.height = b.frame.height;
-        var r = paper.Path.Rectangle(rect.x, rect.y, rect.width, rect.height);
-        paperPath = paperPath.subtract(r);
+        let shape:any;
+
+        if (b.$$isRect) {
+          let rect: any = {};
+          let p: any = this.toPoint(b.path.points[0].point, b);
+          rect.x = p.x;
+          rect.y = p.y;
+          rect.width = b.frame.width;
+          rect.height = b.frame.height;
+          shape = paper.Path.Rectangle(rect.x, rect.y, rect.width, rect.height);
+        } else {
+          shape =  new paper.Path(this.getPath(b));
+        }
+
+
+
+        if (b.booleanOperation === 2) {
+          paperPath = paperPath.intersect(shape);
+        } else if(b.booleanOperation === 3) {
+          paperPath = paperPath.exclude(shape);
+        } else{
+          paperPath = paperPath.subtract(shape);
+        }
       });
       return paperPath.pathData;
     }
@@ -140,7 +165,10 @@ export class SketchService {
     const r: number = Math.round(color.red * 255);
     const g: number = Math.round(color.green * 255);
     const b: number = Math.round(color.blue * 255);
-    const hex: string = (r << 16 | g << 8 | b).toString(16).toUpperCase();
+    let hex: string = (r << 16 | g << 8 | b).toString(16).toUpperCase();
+    if (hex === "0") {
+      hex = "000000";
+    }
     return '#' + hex;
   }
 
@@ -275,6 +303,7 @@ export class SketchService {
     data.$$id = this.generateUUID();
     data.$$transform = this.getTransformation(data);
     this.objects[data.$$id] = data;
+    this.layerNameMap[data.name] = data;
     data.masks = [];
     if (parent) {
       data.parent = parent.$$id;
@@ -356,9 +385,11 @@ export class SketchService {
       let currentBooleanOperationTarget;
       data.layers.forEach((l, index) => {
         l.parent = data.$$id;
-        if (l.booleanOperation != -1) {
+
+        if (l.booleanOperation != -1 && currentBooleanOperationTarget) {
           currentBooleanOperationTarget.booleanOperationObjects.push(l);
         } else {
+          l.isBooleanOperationTarget = true;
           currentBooleanOperationTarget = l;
           currentBooleanOperationTarget.booleanOperationObjects = [];
         }
@@ -367,11 +398,18 @@ export class SketchService {
 
       });
 
-      data.layers.forEach((l) => {
-        if (!l.$$isRect && l.booleanOperation !== 1) {
-          l.$$path = this.getPath(l);
-        } else if (l.$$isRect) {
 
+      data.layers.forEach((l, index) => {
+        if(l.isBooleanOperationTarget && l.booleanOperationObjects.length === 0) {
+          l.isBooleanOperationTarget = false;
+        }
+
+      });
+
+      data.layers.forEach((l) => {
+        l.$$path = this.getPath(l);
+
+        if (l.$$isRect) {
           l.$$rx = 0;
           if (l.fixedRadius) {
             l.$$rx = l.fixedRadius;
@@ -381,6 +419,22 @@ export class SketchService {
         l.$$x = p.x;
         l.$$y = p.y;
         l.$$transform = this.getTransformation(l);
+
+
+
+        if (l.$$isRect && l.booleanOperation <= 0) {
+          l.$$drawAsRect = true;
+        }
+
+        if (!l.$$isRect && l.booleanOperation <=0) {
+          l.$$drawAsPath = true;
+        }
+
+        if (l.isBooleanOperationTarget) {
+          l.$$drawAsPath = true;
+          l.$$drawAsRect = false;
+        }
+
 
 
       });
