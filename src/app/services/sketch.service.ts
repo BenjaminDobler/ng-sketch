@@ -104,13 +104,13 @@ export class SketchService {
       let paperPath = new paper.Path(path);
 
 
-      let operations = layer.booleanOperationObjects.map(x=>x.booleanOperation);
-      operations = [layer.booleanOperation,...operations];
+      let operations = layer.booleanOperationObjects.map(x => x.booleanOperation);
+      operations = [layer.booleanOperation, ...operations];
       console.log("GET PATH Layer ", operations);
 
 
       layer.booleanOperationObjects.forEach((b) => {
-        let shape:any;
+        let shape: any;
 
         if (b.$$isRect) {
           let rect: any = {};
@@ -121,16 +121,15 @@ export class SketchService {
           rect.height = b.frame.height;
           shape = paper.Path.Rectangle(rect.x, rect.y, rect.width, rect.height);
         } else {
-          shape =  new paper.Path(this.getPath(b));
+          shape = new paper.Path(this.getPath(b));
         }
-
 
 
         if (b.booleanOperation === 2) {
           paperPath = paperPath.intersect(shape);
-        } else if(b.booleanOperation === 3) {
+        } else if (b.booleanOperation === 3) {
           paperPath = paperPath.exclude(shape);
-        } else{
+        } else {
           paperPath = paperPath.subtract(shape);
         }
       });
@@ -148,6 +147,13 @@ export class SketchService {
       return false;
     });
     return rectPoints.length === data.points.length;
+  }
+
+  isLine(data): boolean {
+    if (data.points.length === 2 && !data.points[0].hasCurveFrom && !data.points[0].hasCurveTo && !data.points[1].hasCurveFrom && !data.points[1].hasCurveTo) {
+      return true;
+    }
+    return false;
   }
 
 
@@ -395,12 +401,13 @@ export class SketchService {
         }
 
         l.$$isRect = this.isRect(l.path);
+        l.$$isLine = this.isLine(l.path);
 
       });
 
 
       data.layers.forEach((l, index) => {
-        if(l.isBooleanOperationTarget && l.booleanOperationObjects.length === 0) {
+        if (l.isBooleanOperationTarget && l.booleanOperationObjects.length === 0) {
           l.isBooleanOperationTarget = false;
         }
 
@@ -415,26 +422,39 @@ export class SketchService {
             l.$$rx = l.fixedRadius;
           }
         }
+
+        if (l.$$isLine) {
+          let p1: any = this.toPoint(l.path.points[0].point, l);
+          let p2: any = this.toPoint(l.path.points[1].point, l);
+          l.$$x1 = p1.x;
+          l.$$y1 = p1.y;
+          l.$$x2 = p2.x;
+          l.$$y2 = p2.y;
+        }
+
         let p: any = this.toPoint(l.path.points[0].point, l);
         l.$$x = p.x;
         l.$$y = p.y;
         l.$$transform = this.getTransformation(l);
 
 
-
         if (l.$$isRect && l.booleanOperation <= 0) {
           l.$$drawAsRect = true;
         }
 
-        if (!l.$$isRect && l.booleanOperation <=0) {
+        if (l.$$isLine && l.booleanOperation <= 0) {
+          l.$$drawAsLine = true;
+        }
+
+        if (!l.$$isRect && l.booleanOperation <= 0) {
           l.$$drawAsPath = true;
         }
 
         if (l.isBooleanOperationTarget) {
           l.$$drawAsPath = true;
           l.$$drawAsRect = false;
+          l.$$drawAsLine = false;
         }
-
 
 
       });

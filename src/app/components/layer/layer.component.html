@@ -48,6 +48,12 @@
 
     <svg:defs *ngFor="let pathLayer of data?.layers; let i = index">
       <svg:rect [sketch-rectangle] [id]="pathLayer.id" [data]="pathLayer" *ngIf="pathLayer.$$drawAsRect"></svg:rect>
+      <svg:line [id]="pathLayer.id"
+                [attr.x1]="pathLayer.$$x1"
+                [attr.x2]="pathLayer.$$x2"
+                [attr.y1]="pathLayer.$$y1"
+                [attr.y2]="pathLayer.$$y2"
+                *ngIf="pathLayer.$$drawAsLine"></svg:line>
       <svg:path [id]="pathLayer.id" [attr.d]="pathLayer.$$path" [attr.transform]="pathLayer.$$transform" *ngIf="pathLayer.$$drawAsPath"/>
     </svg:defs>
 
