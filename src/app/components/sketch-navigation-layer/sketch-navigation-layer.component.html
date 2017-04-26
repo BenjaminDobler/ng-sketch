@@ -1,0 +1,13 @@
+<div style="display: flex" (click)="highlight(data)">
+  <div [style.width]="getPadding()"></div>
+  <div (click)="open=!open" class="icon" [class.open]="open && data?.layers" [class.closed]="!open && data?.layers"></div>
+  <div class="icon type-rect" *ngIf="data?.$$isRect"></div>
+
+  <div style="white-space: nowrap;line-height: 20px">{{data?.name}}</div>
+
+</div>
+<div (click)="data.$$hidden=!data.$$hidden" class="eye" [class.eyeClosed]="data.$$hidden" style="position:absolute;right:0;width:20px;height:20px"></div>
+
+<ng-container *ngIf="open">
+  <sketch-navigation-layer [data]="layer" *ngFor="let layer of data?.layers"></sketch-navigation-layer>
+</ng-container>

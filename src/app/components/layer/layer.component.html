@@ -3,7 +3,7 @@
 <!-- Define all masks in this group -->
 <svg:defs *ngFor="let mask of data?.masks">
   <svg:mask [attr.id]="'mask'+mask.id" *ngFor="let maskLayer of mask.layers">
-    <svg:rect [sketch-rectangle] [data]="maskLayer" *ngIf="maskLayer.$$isRect"></svg:rect>
+    <svg:rect sketch-rectangle [data]="maskLayer" *ngIf="maskLayer.$$isRect"></svg:rect>
     <svg:path [attr.d]="maskLayer.$$path" fill="white" *ngIf="!maskLayer.$$isRect"/>
   </svg:mask>
 </svg:defs>
@@ -47,7 +47,8 @@
 
 
     <svg:defs *ngFor="let pathLayer of data?.layers; let i = index">
-      <svg:rect [sketch-rectangle] [id]="pathLayer.id" [data]="pathLayer" *ngIf="pathLayer.$$drawAsRect"></svg:rect>
+      <svg:circle [attr.cx]="pathLayer.$$cx" [attr.cy]="pathLayer.$$cy" [attr.r]="pathLayer.$$radius"  *ngIf="pathLayer.$$drasAsCircle"></svg:circle>
+      <svg:rect sketch-rectangle [id]="pathLayer.id" [data]="pathLayer" *ngIf="pathLayer.$$drawAsRect"></svg:rect>
       <svg:line [id]="pathLayer.id"
                 [attr.x1]="pathLayer.$$x1"
                 [attr.x2]="pathLayer.$$x2"
@@ -60,7 +61,7 @@
 
   </svg:defs>
 
-  <svg:g *ngIf="data._class==='shapeGroup'">
+  <svg:g *ngIf="data._class==='shapeGroup' && !data.$$hidden ">
 
     <svg:g *ngFor="let ref of data?.layers">
     <svg:use
@@ -84,12 +85,12 @@
 
 
 
-<svg:text sketch-text [id]="data.id" [data]="data" *ngIf="data._class === 'text'"></svg:text>
+<svg:text sketch-text [id]="data.id" [data]="data" *ngIf="data._class === 'text' && !data.$$hidden"></svg:text>
 
-<svg:image sketch-image [attr.id]="data.id" [data]="data" *ngIf="data?._class==='bitmap'"></svg:image>
+<svg:image sketch-image [attr.id]="data.id" [data]="data" *ngIf="data?._class==='bitmap' && !data.$$hidden"></svg:image>
 
 
-<svg:g *ngIf="data?._class==='group' || data?._class==='page' || data?._class==='artboard'">
+<svg:g *ngIf="(data?._class==='group' || data?._class==='page' || data?._class==='artboard') && !data.$$hidden">
   <svg:g layer [attr.x]="l.frame.x+'px'"
          [attr.y]="l.frame.y+'px'"
          [attr.width]="l.frame.width+'px'"

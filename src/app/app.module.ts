@@ -13,6 +13,7 @@ import { SketchInfoComponent } from './components/sketch-info/sketch-info.compon
 import {SketchRectangleComponent} from "./components/elements/sketch-rectangle/sketch-rectangle.component";
 import {SketchTextComponent} from "./components/elements/sketch-text/sketch-text.component";
 import { SketchImageComponent } from './components/elements/sketch-image/sketch-image.component';
+import {SketchNavigationLayerComponent} from "./components/sketch-navigation-layer/sketch-navigation-layer.component";
 
 @NgModule({
   declarations: [
@@ -24,7 +25,8 @@ import { SketchImageComponent } from './components/elements/sketch-image/sketch-
     SketchInfoComponent,
     SketchRectangleComponent,
     SketchTextComponent,
-    SketchImageComponent
+    SketchImageComponent,
+    SketchNavigationLayerComponent
   ],
   imports: [
     BrowserModule,
@@ -32,7 +34,6 @@ import { SketchImageComponent } from './components/elements/sketch-image/sketch-
     HttpModule
   ],
   providers: [SketchService],
-  bootstrap: [AppComponent],
-  schemas: [ NO_ERRORS_SCHEMA ]
+  bootstrap: [AppComponent]
 })
 export class AppModule { }

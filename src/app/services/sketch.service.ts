@@ -31,7 +31,6 @@ export class SketchService {
 
   public loadFile() {
 
-
     const w: any = window;
     this.bplistParser = w.nodeRequire('bplist-parser');
 
@@ -39,7 +38,8 @@ export class SketchService {
     this.sketchLoader.openDialog()
       .then((data: any) => {
         data.pages.forEach((page, pageNum) => {
-          this.analyzePage(page.data, null, pageNum + '', '');
+          page.data.$$level = 0;
+          this.analyzePage(page.data, 1, null, pageNum + '', '');
         });
         this.pages = data.pages;
         this.loadedImages = data.imageMap;
@@ -148,6 +148,19 @@ export class SketchService {
     });
     return rectPoints.length === data.points.length;
   }
+
+
+  isCircle(data): boolean {
+    const isCurved:boolean = data.points.filter(x=>(x.hasCurveTo&&x.hasCurveFrom)).length === 0;
+    const rectPoints = data.points.map(x => this.toPoint(x.point)).filter((p) => {
+      if (isCurved && (p.x === 0 || p.x === 1 || p.x === 0.5) && (p.y === 0 || p.y === 1 || p.y === 0.5)) {
+        return true;
+      }
+      return false;
+    });
+    return (rectPoints.length === data.points.length) && isCurved;
+  }
+
 
   isLine(data): boolean {
     if (data.points.length === 2 && !data.points[0].hasCurveFrom && !data.points[0].hasCurveTo && !data.points[1].hasCurveFrom && !data.points[1].hasCurveTo) {
@@ -304,19 +317,19 @@ export class SketchService {
   }
 
 
-  private analyzePage(data: any, parent: any, level: string, maskId: string) {
-
+  private analyzePage(data: any, parent: any, level:number, id: string, maskId: string) {
     data.$$id = this.generateUUID();
     data.$$transform = this.getTransformation(data);
     this.objects[data.$$id] = data;
     this.layerNameMap[data.name] = data;
     data.masks = [];
+    data.$$level = level;
     if (parent) {
       data.parent = parent.$$id;
     }
 
     data.maskId = maskId;
-    data.id = level;
+    data.id = id;
 
     const w: any = window;
     const b: any = w.Buffer;
@@ -402,6 +415,8 @@ export class SketchService {
 
         l.$$isRect = this.isRect(l.path);
         l.$$isLine = this.isLine(l.path);
+        l.$$isCircle = this.isCircle(l.path);
+        console.log("Is Circle ", this.isCircle(l.path));
 
       });
 
@@ -432,6 +447,17 @@ export class SketchService {
           l.$$y2 = p2.y;
         }
 
+        if (l.$$isCircle) {
+          let p1: any = this.toPoint(l.path.points[0].point, l);
+          let p2: any = this.toPoint(l.path.points[1].point, l);
+          let p3: any = this.toPoint(l.path.points[1].point, l);
+          l.$$cx = p2.x - p1.x;
+          l.$$cy = p2.y - p1.y;
+
+          l.$$radius = 100;
+
+        }
+
         let p: any = this.toPoint(l.path.points[0].point, l);
         l.$$x = p.x;
         l.$$y = p.y;
@@ -442,11 +468,15 @@ export class SketchService {
           l.$$drawAsRect = true;
         }
 
+        if (l.$$isCircle && l.booleanOperation <= 0) {
+          l.$$drawAsCircle = true;
+        }
+
         if (l.$$isLine && l.booleanOperation <= 0) {
           l.$$drawAsLine = true;
         }
 
-        if (!l.$$isRect && l.booleanOperation <= 0) {
+        if (!l.$$isRect && !l.$$isLine && !l.$$isCircle && l.booleanOperation <= 0) {
           l.$$drawAsPath = true;
         }
 
@@ -471,11 +501,12 @@ export class SketchService {
       if (i === 'layers') {
         let hasClippingMask = false;
         let mId = '';
+        let newLevel:number = level +1;
         data[i].forEach((layer, index) => {
-          this.analyzePage(layer, data, level + '-' + index, mId);
+          this.analyzePage(layer, data, newLevel, id + '-' + index, mId);
           if (layer.hasClippingMask) {
             hasClippingMask = true;
-            mId = level + '-' + index;
+            mId = id + '-' + index;
             data.masks.push(layer);
           }
 

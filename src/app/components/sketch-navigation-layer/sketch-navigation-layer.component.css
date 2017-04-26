@@ -1,0 +1,47 @@
+
+
+
+:host {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+
+.icon {
+  width: 20px;
+  height: 20px;
+
+}
+.open {
+  background: url('/assets/icons/folder_open.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.closed {
+  background: url('/assets/icons/folder_closed.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+.type-rect {
+  background: url('/assets/icons/type-rect.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.eye {
+  background: url('/assets/icons/eye.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.eyeClosed {
+  background: url('/assets/icons/eye_closed.png');
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
