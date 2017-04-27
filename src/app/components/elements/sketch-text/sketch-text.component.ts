@@ -21,7 +21,7 @@ export class SketchTextComponent implements OnInit {
   }
 
   private parseProperties() {
-    this.properties.fill = '#000';
+    this.properties.fill =  this._data.$$fontColor;
     this.properties.fontSize = this._data.$$fontSize;
     this.properties.fontFamily = this._data.$$fontFamily;
     this.properties.text = this._data.decodedTextAttributes.NSString;

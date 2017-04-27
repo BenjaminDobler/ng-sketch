@@ -345,6 +345,7 @@ export class SketchService {
           if (err) throw err;
           const parser: NSArchiveParser = new NSArchiveParser();
           data.___MSAttributedStringFontAttribute = parser.parse(obj);
+          console.log(data.___MSAttributedStringFontAttribute);
         });
 
       }
@@ -359,10 +360,24 @@ export class SketchService {
         data.decodedTextAttributes = parser.parse(obj);
       });
 
+      if (data.decodedTextAttributes.NSAttributes && data.decodedTextAttributes.NSAttributes.NSColor) {
+        const colorArray = data.decodedTextAttributes.NSAttributes.NSColor.NSRGB.toString().split(' ');
+        let colors: any = {};
+        colors.red = parseFloat(colorArray[0]);
+        colors.green = parseFloat(colorArray[1]);
+        colors.blue = parseFloat(colorArray[2]);
+        data.$$fontColor = this.colorToHex(colors);
+      } else {
+        data.$$fontColor = '#000000';
+
+      }
+
+
 
       data.$$fontSize = this.getFontSize(data);
       data.$$fontFamily = this.getFontFamily(data);
       data.$$text = data.decodedTextAttributes.NSString;
+
 
 
     }
