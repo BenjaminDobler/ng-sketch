@@ -32,6 +32,7 @@ export class SketchTextComponent implements OnInit {
     this.properties.height = this._data.frame.height;
     this.properties.transform = this._data.$$transform;//this.sketchService.getTransformation(this._data);
     this.properties.mask = 'url(#mask' + this._data.maskId + ')';
+    this.properties.fillOpacity = this._data.$$fillOpacity;
   }
 
   ngOnInit() {
@@ -39,8 +40,13 @@ export class SketchTextComponent implements OnInit {
 
 
   @HostBinding('attr.fill')
-  public get fill(): string {
+  public get fillOpacity(): string {
     return this.properties.fill;
+  }
+
+  @HostBinding('attr.fill-opacity')
+  public get fill(): string {
+    return this.properties.fillOpacity;
   }
 
   @HostBinding('attr.font-size')

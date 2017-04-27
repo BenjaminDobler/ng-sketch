@@ -366,9 +366,13 @@ export class SketchService {
         colors.red = parseFloat(colorArray[0]);
         colors.green = parseFloat(colorArray[1]);
         colors.blue = parseFloat(colorArray[2]);
+        if (colorArray.length>3) {
+          data.$$fillOpacity = parseFloat(colorArray[3]);
+        }
         data.$$fontColor = this.colorToHex(colors);
       } else {
         data.$$fontColor = '#000000';
+        data.$$fillOpacity = 1;
 
       }
 
