@@ -1,7 +1,7 @@
 import {Injectable, NgZone} from '@angular/core';
 import {NSArchiveParser} from './NSArchiveParser';
 import {Sketch2Svg} from './sketch2svg';
-import {SketchLoader} from "./sketch.loader";
+import {SketchLoader} from './sketch.loader';
 
 @Injectable()
 export class SketchService {
@@ -82,7 +82,7 @@ export class SketchService {
     });
 
 
-    let path: string = '';
+    let path = '';
     points.forEach((point, index) => {
       if (index == 0) {
         path += `M ${point.point.x},${point.point.y} `;
@@ -95,26 +95,26 @@ export class SketchService {
 
 
     if (layer.booleanOperationObjects && layer.booleanOperationObjects.length > 0) {
-      let w: any = window;
+      const w: any = window;
 
-      var canvas = document.getElementById('myCanvas');
+      const canvas = document.getElementById('myCanvas');
       // Create an empty project and a view for the canvas:
       w.paper.setup(canvas);
-      let paper: any = w.paper;
+      const paper: any = w.paper;
       let paperPath = new paper.Path(path);
 
 
       let operations = layer.booleanOperationObjects.map(x => x.booleanOperation);
       operations = [layer.booleanOperation, ...operations];
-      console.log("GET PATH Layer ", operations);
+      console.log('GET PATH Layer ', operations);
 
 
       layer.booleanOperationObjects.forEach((b) => {
         let shape: any;
 
         if (b.$$isRect) {
-          let rect: any = {};
-          let p: any = this.toPoint(b.path.points[0].point, b);
+          const rect: any = {};
+          const p: any = this.toPoint(b.path.points[0].point, b);
           rect.x = p.x;
           rect.y = p.y;
           rect.width = b.frame.width;
@@ -151,7 +151,7 @@ export class SketchService {
 
 
   isCircle(data): boolean {
-    const isCurved:boolean = data.points.filter(x=>(x.hasCurveTo&&x.hasCurveFrom)).length === 0;
+    const isCurved: boolean = data.points.filter(x => (x.hasCurveTo && x.hasCurveFrom)).length === 0;
     const rectPoints = data.points.map(x => this.toPoint(x.point)).filter((p) => {
       if (isCurved && (p.x === 0 || p.x === 1 || p.x === 0.5) && (p.y === 0 || p.y === 1 || p.y === 0.5)) {
         return true;
@@ -181,14 +181,23 @@ export class SketchService {
 
 
   colorToHex(color: any) {
+    
+    const componentToHex = (c) => {
+      const hex = c.toString(16);
+      return hex.length == 1 ? '0' + hex : hex;
+    };
+
+
+    const rgbToHex = (r, g, b) => {
+      return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    };
+
+
     const r: number = Math.round(color.red * 255);
     const g: number = Math.round(color.green * 255);
     const b: number = Math.round(color.blue * 255);
-    let hex: string = (r << 16 | g << 8 | b).toString(16).toUpperCase();
-    if (hex === "0") {
-      hex = "000000";
-    }
-    return '#' + hex;
+    return rgbToHex(r, g, b);
+
   }
 
   toPoint(p: any, layer?) {
@@ -288,7 +297,7 @@ export class SketchService {
 
   getFontFamily(data) {
     if (data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute) {
-      return data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute
+      return data.decodedTextAttributes.NSAttributes.MSAttributedStringFontAttribute.NSFontDescriptorAttributes.NSFontNameAttribute;
     }
     return 'Helvetica';
   }
@@ -305,19 +314,19 @@ export class SketchService {
 
 
   generateUUID() { // Public Domain/MIT
-    var d = new Date().getTime();
+    let d = new Date().getTime();
     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
       d += performance.now(); //use high-precision timer if available
     }
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      var r = (d + Math.random() * 16) % 16 | 0;
+      const r = (d + Math.random() * 16) % 16 | 0;
       d = Math.floor(d / 16);
       return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
   }
 
 
-  private analyzePage(data: any, parent: any, level:number, id: string, maskId: string) {
+  private analyzePage(data: any, parent: any, level: number, id: string, maskId: string) {
     data.$$id = this.generateUUID();
     data.$$transform = this.getTransformation(data);
     this.objects[data.$$id] = data;
@@ -339,7 +348,7 @@ export class SketchService {
       const archiveData: string = data.attributedString.archivedAttributedString._archive;
 
       if (data.style.textStyle) {
-        let arch = data.style.textStyle.encodedAttributes.NSParagraphStyle._archive;
+        const arch = data.style.textStyle.encodedAttributes.NSParagraphStyle._archive;
         const buf2 = b.from(archiveData, 'base64');
         this.bplistParser.parseFile(buf2, (err, obj) => {
           if (err) throw err;
@@ -362,11 +371,11 @@ export class SketchService {
 
       if (data.decodedTextAttributes.NSAttributes && data.decodedTextAttributes.NSAttributes.NSColor) {
         const colorArray = data.decodedTextAttributes.NSAttributes.NSColor.NSRGB.toString().split(' ');
-        let colors: any = {};
+        const colors: any = {};
         colors.red = parseFloat(colorArray[0]);
         colors.green = parseFloat(colorArray[1]);
         colors.blue = parseFloat(colorArray[2]);
-        if (colorArray.length>3) {
+        if (colorArray.length > 3) {
           data.$$fillOpacity = parseFloat(colorArray[3]);
         }
         data.$$fontColor = this.colorToHex(colors);
@@ -377,11 +386,9 @@ export class SketchService {
       }
 
 
-
       data.$$fontSize = this.getFontSize(data);
       data.$$fontFamily = this.getFontFamily(data);
       data.$$text = data.decodedTextAttributes.NSString;
-
 
 
     }
@@ -435,7 +442,7 @@ export class SketchService {
         l.$$isRect = this.isRect(l.path);
         l.$$isLine = this.isLine(l.path);
         l.$$isCircle = this.isCircle(l.path);
-        console.log("Is Circle ", this.isCircle(l.path));
+        console.log('Is Circle ', this.isCircle(l.path));
 
       });
 
@@ -458,8 +465,8 @@ export class SketchService {
         }
 
         if (l.$$isLine) {
-          let p1: any = this.toPoint(l.path.points[0].point, l);
-          let p2: any = this.toPoint(l.path.points[1].point, l);
+          const p1: any = this.toPoint(l.path.points[0].point, l);
+          const p2: any = this.toPoint(l.path.points[1].point, l);
           l.$$x1 = p1.x;
           l.$$y1 = p1.y;
           l.$$x2 = p2.x;
@@ -467,9 +474,9 @@ export class SketchService {
         }
 
         if (l.$$isCircle) {
-          let p1: any = this.toPoint(l.path.points[0].point, l);
-          let p2: any = this.toPoint(l.path.points[1].point, l);
-          let p3: any = this.toPoint(l.path.points[1].point, l);
+          const p1: any = this.toPoint(l.path.points[0].point, l);
+          const p2: any = this.toPoint(l.path.points[1].point, l);
+          const p3: any = this.toPoint(l.path.points[1].point, l);
           l.$$cx = p2.x - p1.x;
           l.$$cy = p2.y - p1.y;
 
@@ -477,7 +484,7 @@ export class SketchService {
 
         }
 
-        let p: any = this.toPoint(l.path.points[0].point, l);
+        const p: any = this.toPoint(l.path.points[0].point, l);
         l.$$x = p.x;
         l.$$y = p.y;
         l.$$transform = this.getTransformation(l);
@@ -520,7 +527,7 @@ export class SketchService {
       if (i === 'layers') {
         let hasClippingMask = false;
         let mId = '';
-        let newLevel:number = level +1;
+        const newLevel: number = level + 1;
         data[i].forEach((layer, index) => {
           this.analyzePage(layer, data, newLevel, id + '-' + index, mId);
           if (layer.hasClippingMask) {
