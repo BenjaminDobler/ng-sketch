@@ -10,10 +10,11 @@
       window.nodeRequire = require;
     }
 
-    console.log("Node Module Path", window.nodeRequire('electron').remote.getGlobal('sharedObj').nodeModulesPath);
-    nodeRequire('module').globalPaths.push(window.nodeRequire('electron').remote.getGlobal('sharedObj').nodeModulesPath);
-    nodeRequire('module').globalPaths.push('/Users/benjamindobler/Documents/repos/sketch/electron/src/');
+    //console.log("Node Module Path", window.nodeRequire('electron').remote.getGlobal('sharedObj').nodeModulesPath);
+    //nodeRequire('module').globalPaths.push(window.nodeRequire('electron').remote.getGlobal('sharedObj').nodeModulesPath);
+    nodeRequire('module').globalPaths.push('/Users/benjamindobler/Documents/repos/sketch/electron/src/node_modules');
     console.log("Dirname", __dirname);
+    console.log("Path ", nodeRequire('module').globalPaths);
   </script>
 
   <meta name="viewport" content="width=device-width, initial-scale=1">

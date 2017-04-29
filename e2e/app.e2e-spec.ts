@@ -1,10 +1,10 @@
-import { SketchPage } from './app.po';
+import { TestomatPage } from './app.po';
 
-describe('sketch App', () => {
-  let page: SketchPage;
+describe('testomat App', () => {
+  let page: TestomatPage;
 
   beforeEach(() => {
-    page = new SketchPage();
+    page = new TestomatPage();
   });
 
   it('should display message saying app works', () => {

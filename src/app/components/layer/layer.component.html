@@ -90,7 +90,7 @@
 <svg:image sketch-image [attr.id]="data.id" [data]="data" *ngIf="data?._class==='bitmap' && !data.$$hidden"></svg:image>
 
 
-<svg:g *ngIf="(data?._class==='group' || data?._class==='page' || data?._class==='artboard') && !data.$$hidden">
+<svg:g *ngIf="(data?._class==='group' || data?._class==='page' || data?._class==='artboard' || data?._class==='symbolMaster') && !data.$$hidden">
   <svg:g layer [attr.x]="l.frame.x+'px'"
          [attr.y]="l.frame.y+'px'"
          [attr.width]="l.frame.width+'px'"
