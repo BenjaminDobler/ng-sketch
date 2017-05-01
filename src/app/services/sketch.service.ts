@@ -87,6 +87,17 @@ export class SketchService {
       console.log("Symbol instance found ", symbol);
       //page = symbol;
       page.layers = JSON.parse(JSON.stringify(symbol.layers));
+
+      page.layers.forEach((l)=>{
+        console.log("Before ", l.frame.width);
+
+        let wPerc = (page.frame.width/symbol.frame.width);
+        let hPerc = (page.frame.height/symbol.frame.height);
+        this.updateFrame(l, wPerc, hPerc);
+        //console.log("After ", l.frame.width);
+      });
+
+
       page._class = 'group';
     }
 
@@ -97,6 +108,19 @@ export class SketchService {
     }
 
   }
+
+
+  updateFrame(layer, wPerc, hPerc) {
+    layer.frame.width = layer.frame.width * wPerc;
+    layer.frame.height = layer.frame.height * hPerc;
+    if (layer.layers) {
+      layer.layers.forEach((l)=>{
+        this.updateFrame(l, wPerc, hPerc);
+      });
+    }
+  }
+
+
 
 
 
