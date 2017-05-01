@@ -10,6 +10,7 @@ export class SketchRectangleComponent implements OnInit {
 
   @Input()
   set data(value: any) {
+    console.log("Set Rect Data ", value);
     this._data = value;
   }
 

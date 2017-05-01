@@ -37,6 +37,17 @@ export class SketchService {
     this.sketchLoader = new SketchLoader();
     this.sketchLoader.openDialog()
       .then((data: any) => {
+
+        data.pages.forEach((page, pageNum) => {
+          //page.data.$$level = 0;
+          this.findSymbolMasters(page.data);
+        });
+
+        data.pages.forEach((page, pageNum) => {
+          //page.data.$$level = 0;
+          this.fillSymbolInstances(page.data);
+        });
+
         data.pages.forEach((page, pageNum) => {
           page.data.$$level = 0;
           this.analyzePage(page.data, 1, null, pageNum + '', '');
@@ -52,6 +63,42 @@ export class SketchService {
         //console.log(svg.convert(this.pages[0].data, this, 'myOval'));
       });
   }
+
+
+  symbolMasters:any = {};
+
+
+  findSymbolMasters(page) {
+    if (page._class === 'symbolMaster') {
+      this.symbolMasters[page.symbolID] = page;
+    }
+
+    if (page.layers) {
+      page.layers.forEach((p)=>{
+        this.findSymbolMasters(p);
+      });
+    }
+
+  }
+
+  fillSymbolInstances(page) {
+    if (page._class === 'symbolInstance') {
+      let symbol = this.symbolMasters[page.symbolID];
+      console.log("Symbol instance found ", symbol);
+      //page = symbol;
+      page.layers = JSON.parse(JSON.stringify(symbol.layers));
+      page._class = 'group';
+    }
+
+    if (page.layers) {
+      page.layers.forEach((p)=>{
+        this.fillSymbolInstances(p);
+      });
+    }
+
+  }
+
+
 
   public selectPage(page) {
     this.page = page;
@@ -106,7 +153,6 @@ export class SketchService {
 
       let operations = layer.booleanOperationObjects.map(x => x.booleanOperation);
       operations = [layer.booleanOperation, ...operations];
-      console.log('GET PATH Layer ', operations);
 
 
       layer.booleanOperationObjects.forEach((b) => {
@@ -311,6 +357,7 @@ export class SketchService {
 
 
   objects: any = {};
+  symbolMap: any = {};
 
 
   generateUUID() { // Public Domain/MIT
@@ -326,7 +373,7 @@ export class SketchService {
   }
 
 
-  private analyzePage(data: any, parent: any, level: number, id: string, maskId: string) {
+  public analyzePage(data: any, parent: any, level: number, id: string, maskId: string) {
     data.$$id = this.generateUUID();
     data.$$transform = this.getTransformation(data);
     this.objects[data.$$id] = data;
@@ -342,7 +389,6 @@ export class SketchService {
 
     const w: any = window;
     const b: any = w.Buffer;
-
 
     if (data._class === 'text') {
       const archiveData: string = data.attributedString.archivedAttributedString._archive;
@@ -426,7 +472,7 @@ export class SketchService {
       }
     }
 
-    if (data._class === 'shapeGroup') {
+    if (data._class === 'shapeGroup' ) {
       let currentBooleanOperationTarget;
       data.layers.forEach((l, index) => {
         l.parent = data.$$id;

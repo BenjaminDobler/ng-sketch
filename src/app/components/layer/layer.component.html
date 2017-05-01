@@ -1,18 +1,21 @@
 
 
 <!-- Define all masks in this group -->
-<svg:defs *ngFor="let mask of data?.masks">
-  <svg:mask [attr.id]="'mask'+mask.id" *ngFor="let maskLayer of mask.layers">
-    <svg:rect sketch-rectangle [data]="maskLayer" *ngIf="maskLayer.$$isRect"></svg:rect>
-    <svg:path [attr.d]="maskLayer.$$path" fill="white" *ngIf="!maskLayer.$$isRect"/>
-  </svg:mask>
-</svg:defs>
+
 
 
 <!--<svg:g *ngFor="let pathLayer of data?.layers; let i = index">
   <!-- Shape Group -->
-  <svg:defs *ngIf="data._class==='shapeGroup'">
+  <svg:defs >
 
+    <ng-container *ngFor="let mask of data?.masks">
+      <svg:mask [attr.id]="'mask'+mask.id" *ngFor="let maskLayer of mask.layers">
+        <svg:rect sketch-rectangle [data]="maskLayer" *ngIf="maskLayer.$$isRect"></svg:rect>
+        <svg:path [attr.d]="maskLayer.$$path" fill="white" *ngIf="!maskLayer.$$isRect"/>
+      </svg:mask>
+    </ng-container>
+
+    <ng-container *ngIf="data._class==='shapeGroup'">
     <linearGradient [attr.x1]="gradient.x1"
                     [attr.y1]="gradient.y1"
                     [attr.x2]="gradient.x2"
@@ -46,7 +49,8 @@
     </radialGradient>
 
 
-    <svg:defs *ngFor="let pathLayer of data?.layers; let i = index">
+   <!-- <svg:defs *ngFor="let pathLayer of data?.layers; let i = index">-->
+      <ng-container *ngFor="let pathLayer of data?.layers; let i = index">
       <svg:circle [attr.cx]="pathLayer.$$cx" [attr.cy]="pathLayer.$$cy" [attr.r]="pathLayer.$$radius"  *ngIf="pathLayer.$$drasAsCircle"></svg:circle>
       <svg:rect sketch-rectangle [id]="pathLayer.id" [data]="pathLayer" *ngIf="pathLayer.$$drawAsRect"></svg:rect>
       <svg:line [id]="pathLayer.id"
@@ -56,8 +60,9 @@
                 [attr.y2]="pathLayer.$$y2"
                 *ngIf="pathLayer.$$drawAsLine"></svg:line>
       <svg:path [id]="pathLayer.id" [attr.d]="pathLayer.$$path" [attr.transform]="pathLayer.$$transform" *ngIf="pathLayer.$$drawAsPath"/>
-    </svg:defs>
-
+      </ng-container>
+    <!--</svg:defs>-->
+    </ng-container>
 
   </svg:defs>
 
@@ -76,8 +81,6 @@
 
 
 <!--</svg:g>-->
-
-
 
 
 
