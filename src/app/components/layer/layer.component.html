@@ -93,13 +93,13 @@
 <svg:image sketch-image [attr.id]="data.id" [data]="data" *ngIf="data?._class==='bitmap' && !data.$$hidden"></svg:image>
 
 
-<svg:g *ngIf="(data?._class==='group' || data?._class==='page' || data?._class==='artboard' || data?._class==='symbolMaster') && !data.$$hidden">
+<ng-container *ngIf="(data?._class==='group' || data?._class==='page' || data?._class==='artboard' || data?._class==='symbolMaster') && !data.$$hidden">
   <svg:g layer [attr.x]="l.frame.x+'px'"
          [attr.y]="l.frame.y+'px'"
          [attr.width]="l.frame.width+'px'"
          [attr.height]="l.frame.height+'px'"
          [data]="l" [parent]="data" [index]="index+'-'+i" *ngFor="let l of data.layers;let i = index"></svg:g>
-</svg:g>
+</ng-container>
 
 
 

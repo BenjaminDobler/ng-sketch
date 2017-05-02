@@ -65,7 +65,7 @@ export class SketchService {
   }
 
 
-  symbolMasters:any = {};
+  symbolMasters: any = {};
 
 
   findSymbolMasters(page) {
@@ -74,7 +74,7 @@ export class SketchService {
     }
 
     if (page.layers) {
-      page.layers.forEach((p)=>{
+      page.layers.forEach((p) => {
         this.findSymbolMasters(p);
       });
     }
@@ -88,11 +88,11 @@ export class SketchService {
       //page = symbol;
       page.layers = JSON.parse(JSON.stringify(symbol.layers));
 
-      page.layers.forEach((l)=>{
+      page.layers.forEach((l) => {
         console.log("Before ", l.frame.width);
 
-        let wPerc = (page.frame.width/symbol.frame.width);
-        let hPerc = (page.frame.height/symbol.frame.height);
+        let wPerc = (page.frame.width / symbol.frame.width);
+        let hPerc = (page.frame.height / symbol.frame.height);
         this.updateFrame(l, wPerc, hPerc);
         //console.log("After ", l.frame.width);
       });
@@ -102,7 +102,7 @@ export class SketchService {
     }
 
     if (page.layers) {
-      page.layers.forEach((p)=>{
+      page.layers.forEach((p) => {
         this.fillSymbolInstances(p);
       });
     }
@@ -114,14 +114,11 @@ export class SketchService {
     layer.frame.width = layer.frame.width * wPerc;
     layer.frame.height = layer.frame.height * hPerc;
     if (layer.layers) {
-      layer.layers.forEach((l)=>{
+      layer.layers.forEach((l) => {
         this.updateFrame(l, wPerc, hPerc);
       });
     }
   }
-
-
-
 
 
   public selectPage(page) {
@@ -455,6 +452,17 @@ export class SketchService {
 
       }
 
+      if (data.decodedTextAttributes.NSAttributes.NSParagraphStyle) {
+        const paragraphSpacing = data.decodedTextAttributes.NSAttributes.NSParagraphStyle.NSParagraphSpacing;
+        const maxLineHeight = data.decodedTextAttributes.NSAttributes.NSParagraphStyle.NSMaxLineHeight;
+        const minLineHeight = data.decodedTextAttributes.NSAttributes.NSParagraphStyle.NSMinLineHeight;
+        const lineHeight = minLineHeight;
+        data.$$paragraphSpacing = paragraphSpacing;
+        data.$$minLineHeight = minLineHeight;
+        data.$$maxLineHeight = maxLineHeight;
+        data.$$lineHeight = lineHeight;
+      }
+
 
       data.$$fontSize = this.getFontSize(data);
       data.$$fontFamily = this.getFontFamily(data);
@@ -496,7 +504,7 @@ export class SketchService {
       }
     }
 
-    if (data._class === 'shapeGroup' ) {
+    if (data._class === 'shapeGroup') {
       let currentBooleanOperationTarget;
       data.layers.forEach((l, index) => {
         l.parent = data.$$id;
