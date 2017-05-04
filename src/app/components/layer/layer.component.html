@@ -1,21 +1,16 @@
 
+<!-- Shape Group -->
+<svg:defs>
 
-<!-- Define all masks in this group -->
+  <ng-container *ngFor="let mask of data?.masks">
+    <svg:mask [attr.id]="'mask'+mask.id" *ngFor="let maskLayer of mask.layers">
+      <svg:rect sketch-rectangle [data]="maskLayer" *ngIf="maskLayer.$$isRect"></svg:rect>
+      <svg:path [attr.d]="maskLayer.$$path" fill="white" *ngIf="!maskLayer.$$isRect"/>
+    </svg:mask>
+  </ng-container>
 
+  <ng-container *ngIf="data._class==='shapeGroup'">
 
-
-<!--<svg:g *ngFor="let pathLayer of data?.layers; let i = index">
-  <!-- Shape Group -->
-  <svg:defs >
-
-    <ng-container *ngFor="let mask of data?.masks">
-      <svg:mask [attr.id]="'mask'+mask.id" *ngFor="let maskLayer of mask.layers">
-        <svg:rect sketch-rectangle [data]="maskLayer" *ngIf="maskLayer.$$isRect"></svg:rect>
-        <svg:path [attr.d]="maskLayer.$$path" fill="white" *ngIf="!maskLayer.$$isRect"/>
-      </svg:mask>
-    </ng-container>
-
-    <ng-container *ngIf="data._class==='shapeGroup'">
     <linearGradient [attr.x1]="gradient.x1"
                     [attr.y1]="gradient.y1"
                     [attr.x2]="gradient.x2"
@@ -30,7 +25,6 @@
         *ngFor="let stop of gradient.stops">
       </stop>
     </linearGradient>
-
 
 
     <radialGradient [attr.x1]="gradient.x1"
@@ -49,9 +43,9 @@
     </radialGradient>
 
 
-   <!-- <svg:defs *ngFor="let pathLayer of data?.layers; let i = index">-->
-      <ng-container *ngFor="let pathLayer of data?.layers; let i = index">
-      <svg:circle [attr.cx]="pathLayer.$$cx" [attr.cy]="pathLayer.$$cy" [attr.r]="pathLayer.$$radius"  *ngIf="pathLayer.$$drasAsCircle"></svg:circle>
+    <ng-container *ngFor="let pathLayer of data?.layers; let i = index">
+      <svg:circle [attr.cx]="pathLayer.$$cx" [attr.cy]="pathLayer.$$cy" [attr.r]="pathLayer.$$radius"
+                  *ngIf="pathLayer.$$drasAsCircle"></svg:circle>
       <svg:rect sketch-rectangle [id]="pathLayer.id" [data]="pathLayer" *ngIf="pathLayer.$$drawAsRect"></svg:rect>
       <svg:line [id]="pathLayer.id"
                 [attr.x1]="pathLayer.$$x1"
@@ -59,16 +53,15 @@
                 [attr.y1]="pathLayer.$$y1"
                 [attr.y2]="pathLayer.$$y2"
                 *ngIf="pathLayer.$$drawAsLine"></svg:line>
-      <svg:path [id]="pathLayer.id" [attr.d]="pathLayer.$$path" [attr.transform]="pathLayer.$$transform" *ngIf="pathLayer.$$drawAsPath"/>
-      </ng-container>
-    <!--</svg:defs>-->
+      <svg:path [id]="pathLayer.id" [attr.d]="pathLayer.$$path" [attr.transform]="pathLayer.$$transform"
+                *ngIf="pathLayer.$$drawAsPath"/>
     </ng-container>
+  </ng-container>
 
-  </svg:defs>
+</svg:defs>
 
-  <svg:g *ngIf="data._class==='shapeGroup' && !data.$$hidden ">
-
-    <svg:g *ngFor="let ref of data?.layers">
+<ng-container *ngIf="data._class==='shapeGroup' && !data.$$hidden ">
+  <svg:g *ngFor="let ref of data?.layers">
     <svg:use
       [attr.mask]="'url(#mask'+data.maskId+')'"
       [attr.stroke]="data.$$strokeColor"
@@ -76,29 +69,34 @@
       [attr.fill]="data.$$fill"
       fill-rule="evenodd"
       [attr.xlink:href]="'#'+ref.id"></svg:use>
-    </svg:g>
   </svg:g>
+</ng-container>
 
 
-<!--</svg:g>-->
+<svg:text sketch-text
+          [id]="data.id"
+          [data]="data"
+          *ngIf="data._class === 'text' && !data.$$hidden">
+
+</svg:text>
+
+<svg:image sketch-image
+           [attr.id]="data.id"
+           [data]="data"
+           *ngIf="data?._class==='bitmap' && !data.$$hidden">
+
+</svg:image>
 
 
-
-
-
-
-
-<svg:text sketch-text [id]="data.id" [data]="data" *ngIf="data._class === 'text' && !data.$$hidden"></svg:text>
-
-<svg:image sketch-image [attr.id]="data.id" [data]="data" *ngIf="data?._class==='bitmap' && !data.$$hidden"></svg:image>
-
-
-<ng-container *ngIf="(data?._class==='group' || data?._class==='page' || data?._class==='artboard' || data?._class==='symbolMaster') && !data.$$hidden">
+<ng-container *ngIf="data.layers">
   <svg:g layer [attr.x]="l.frame.x+'px'"
          [attr.y]="l.frame.y+'px'"
          [attr.width]="l.frame.width+'px'"
          [attr.height]="l.frame.height+'px'"
-         [data]="l" [parent]="data" [index]="index+'-'+i" *ngFor="let l of data.layers;let i = index"></svg:g>
+         [data]="l"
+         [parent]="data"
+         [index]="index+'-'+i"
+         *ngFor="let l of data.layers;let i = index"></svg:g>
 </ng-container>
 
 
