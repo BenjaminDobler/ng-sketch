@@ -15,8 +15,6 @@ export class SketchNavigationLayerComponent implements OnInit {
 
   @Input()
   set data(value:any) {
-
-    console.log("Data ", value);
     this._data = value;
     if (!this._data.$$level) {
       this.open = true;

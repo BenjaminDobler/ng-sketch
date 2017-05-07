@@ -11,7 +11,7 @@ import {SketchService} from "../../services/sketch.service";
 export class SketchInfoComponent implements OnInit {
 
 
-  svgConverter:Sketch2Svg;
+  svgConverter: Sketch2Svg;
 
   get selected(): string {
     return this._selected;
@@ -24,9 +24,9 @@ export class SketchInfoComponent implements OnInit {
   @Input()
   selectedLayer: any;
 
-  private _selected:string = 'JSON';
+  private _selected: string = 'JSON';
 
-  constructor(private el: ElementRef, private sketchService:SketchService) {
+  constructor(private el: ElementRef, private sketchService: SketchService) {
     this.svgConverter = new Sketch2Svg();
   }
 

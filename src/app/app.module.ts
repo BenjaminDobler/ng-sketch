@@ -34,6 +34,9 @@ import {SketchNavigationLayerComponent} from "./components/sketch-navigation-lay
     HttpModule
   ],
   providers: [SketchService],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [
+    SketchNavigationLayerComponent
+  ]
 })
 export class AppModule { }

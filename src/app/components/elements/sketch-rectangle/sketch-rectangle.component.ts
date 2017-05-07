@@ -10,15 +10,14 @@ export class SketchRectangleComponent implements OnInit {
 
   @Input()
   set data(value: any) {
-    console.log("Set Rect Data ", value);
     this._data = value;
   }
 
 
   rect: any;
-  private _data:any;
+  private _data: any;
 
-  constructor(private sketchService:SketchService) {
+  constructor(private sketchService: SketchService) {
 
   }
 
@@ -27,36 +26,34 @@ export class SketchRectangleComponent implements OnInit {
 
 
   @HostBinding('attr.x')
-  public get x():number {
+  public get x(): number {
     return this._data.$$x;
   }
 
   @HostBinding('attr.y')
-  public get y():number{
+  public get y(): number {
     return this._data.$$y;
   }
 
   @HostBinding('attr.height')
-  public get height():number {
+  public get height(): number {
     return this._data.frame.height;
   }
 
   @HostBinding('attr.width')
-  public get width():number {
+  public get width(): number {
     return this._data.frame.width;
   }
 
   @HostBinding('attr.rx')
-  public get rx():number {
+  public get rx(): number {
     return this._data.$$rx;
   }
 
   @HostBinding('attr.transform')
-  public get transform():string {
+  public get transform(): string {
     return this._data.$$transform;
   }
-
-
 
 
 }

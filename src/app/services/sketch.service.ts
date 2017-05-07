@@ -84,19 +84,12 @@ export class SketchService {
   fillSymbolInstances(page) {
     if (page._class === 'symbolInstance') {
       let symbol = this.symbolMasters[page.symbolID];
-      console.log("Symbol instance found ", symbol);
-      //page = symbol;
       page.layers = JSON.parse(JSON.stringify(symbol.layers));
-
       page.layers.forEach((l) => {
-        console.log("Before ", l.frame.width);
-
         let wPerc = (page.frame.width / symbol.frame.width);
         let hPerc = (page.frame.height / symbol.frame.height);
         this.updateFrame(l, wPerc, hPerc);
-        //console.log("After ", l.frame.width);
       });
-
 
       page._class = 'group';
     }
@@ -421,7 +414,6 @@ export class SketchService {
           if (err) throw err;
           const parser: NSArchiveParser = new NSArchiveParser();
           data.___MSAttributedStringFontAttribute = parser.parse(obj);
-          console.log(data.___MSAttributedStringFontAttribute);
         });
 
       }
@@ -520,7 +512,6 @@ export class SketchService {
         l.$$isRect = this.isRect(l.path);
         l.$$isLine = this.isLine(l.path);
         l.$$isCircle = this.isCircle(l.path);
-        console.log('Is Circle ', this.isCircle(l.path));
 
       });
 

@@ -1,5 +1,6 @@
-import {Component, NgZone} from '@angular/core';
+import {Component, ComponentFactory, ComponentFactoryResolver, NgZone} from '@angular/core';
 import {SketchService} from "./services/sketch.service";
+import {SketchNavigationLayerComponent} from "./components/sketch-navigation-layer/sketch-navigation-layer.component";
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,8 @@ export class AppComponent {
 
 
   constructor(private zone: NgZone, private sketchService: SketchService) {
+
+
   }
 
 
