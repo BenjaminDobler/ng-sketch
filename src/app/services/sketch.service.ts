@@ -290,9 +290,10 @@ export class SketchService {
       y += layer.frame.y;
       layer = parentLayer;
     }
+
     return {
-      x: x,
-      y: y
+      x: layer.frame.x,
+      y: layer.frame.y
     };
   }
 
