@@ -38,8 +38,8 @@ export class SketchNavigationComponent implements OnInit, AfterViewInit {
   }
 
   onPage(page) {
-    this.sketchService.page = page;
-    this.sketchService.rootLayers = [page.data];
+    //this.sketchService.page = page;
+    //this.sketchService.rootLayers = [page.data];
   }
 
   highlight(layer) {

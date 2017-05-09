@@ -23,21 +23,6 @@ export class SketchCanvasComponent implements OnInit, AfterViewInit {
   public inited:boolean = false;
 
 
-
-  /*
-  get svgData(): any {
-    if (this.sketchService.selectedDocument) {
-      //console.log(this.sketchService.selectedDocument.svg);
-      console.log("REF ", this.ref);
-      if (this.ref) {
-        this.ref.nativeElement.innerHTML = '<svg height="3000" width="3000" fill="#fff" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >'+this.sketchService.selectedDocument.svg+'</svg>';
-      }
-      return '';
-    }
-    return '';
-  }
-  */
-
   get rootlayers(): Array<any> {
     return this._rootlayers;
   }
@@ -73,14 +58,14 @@ export class SketchCanvasComponent implements OnInit, AfterViewInit {
 
   getLeftHighlightStyle() {
     if (this.sketchService.highlightedLayer) {
-      return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).x+"px";
+     // return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).x+"px";
     }
     return '0px';
   }
 
   getTopHighlightStyle() {
     if (this.sketchService.highlightedLayer) {
-      return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).y+"px";
+      //return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).y+"px";
     }
     return '0px';
   }

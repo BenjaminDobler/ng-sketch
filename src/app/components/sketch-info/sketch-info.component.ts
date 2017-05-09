@@ -1,7 +1,6 @@
 import {Component, ElementRef, Input, OnInit} from '@angular/core';
-import {DragAndDropUtil} from "../utils/drag-drop.util";
-import {Sketch2Svg} from "../../services/sketch2svg";
-import {SketchService} from "../../services/sketch.service";
+import {DragAndDropUtil} from '../utils/drag-drop.util';
+import {SketchService} from '../../services/sketch.service';
 
 @Component({
   selector: 'sketch-info',
@@ -10,8 +9,6 @@ import {SketchService} from "../../services/sketch.service";
 })
 export class SketchInfoComponent implements OnInit {
 
-
-  svgConverter: Sketch2Svg;
 
   get selected(): string {
     return this._selected;
@@ -24,10 +21,9 @@ export class SketchInfoComponent implements OnInit {
   @Input()
   selectedLayer: any;
 
-  private _selected: string = 'JSON';
+  private _selected = 'JSON';
 
   constructor(private el: ElementRef, private sketchService: SketchService) {
-    this.svgConverter = new Sketch2Svg();
   }
 
   ngOnInit() {
@@ -41,7 +37,7 @@ export class SketchInfoComponent implements OnInit {
     });
     dd.mousedrag.subscribe((e: any) => {
       console.log(e);
-      let newWidth = startWidth - e.deltaX;
+      const newWidth = startWidth - e.deltaX;
       this.el.nativeElement.style.width = newWidth + 'px';
     });
   }
@@ -51,11 +47,6 @@ export class SketchInfoComponent implements OnInit {
 
   }
 
-  getSVG() {
-    if (this.selectedLayer) {
-      return this.svgConverter.convert(this.selectedLayer, this.sketchService);
-    }
-  }
 
   getSelectedSvgSymbol() {
     if (this.sketchService.selectedSymbolId) {
