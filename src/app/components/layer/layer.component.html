@@ -88,15 +88,17 @@
 </svg:image>
 
 
-<ng-container *ngIf="data.layers">
-  <svg:svg overflow="visible"  layer [attr.x]="l.frame.x+'px'"
+<ng-container *ngIf="data.layers" >
+  <svg:g overflow="visible"
+         layer
+         [attr.x]="l.frame.x+'px'"
          [attr.y]="l.frame.y+'px'"
          [attr.width]="l.frame.width+'px'"
          [attr.height]="l.frame.height+'px'"
          [data]="l"
          [parent]="data"
          [index]="index+'-'+i"
-         *ngFor="let l of data.layers;let i = index"></svg:svg>
+         *ngFor="let l of data.layers;let i = index"></svg:g>
 </ng-container>
 
 

@@ -12,11 +12,15 @@ import {SketchService} from "./sketch.service";
 export class Sketch2Svg {
 
 
+
+
+
   convert(data, service: SketchService, symbolId:string='') {
 
     console.log(data);
 
     const addMask = layer => layer.maskId ? `mask="url(#mask${layer.maskId})"` : '';
+
 
     const insertLayers = (parentLayer, layers) => {
       console.log("Layers", layers)

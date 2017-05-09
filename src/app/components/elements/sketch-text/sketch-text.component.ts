@@ -25,9 +25,8 @@ export class SketchTextComponent implements OnInit {
     this.properties.fontSize = this._data.$$fontSize;
     this.properties.fontFamily = this._data.$$fontFamily;
     this.properties.text = this._data.decodedTextAttributes.NSString;
-    let p: any = this.sketchService.getLayerCoords(this._data);
-    this.properties.x = p.x;
-    this.properties.y = p.y + this._data.frame.height;
+    this.properties.x = this._data.$$x;
+    this.properties.y = this._data.$$y + this._data.frame.height;
     this.properties.width = this._data.frame.width;
     this.properties.height = this._data.frame.height;
     this.properties.transform = this._data.$$transform;//this.sketchService.getTransformation(this._data);

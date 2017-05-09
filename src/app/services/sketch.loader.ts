@@ -1,3 +1,4 @@
+import {EventEmitter} from "@angular/core";
 /**
  * Created by benjamindobler on 11.04.17.
  */
@@ -12,6 +13,9 @@ export class SketchLoader {
   private electron: any;
   private imageMap: any = {};
   private pageMap: any = {};
+  public onFileChanged: EventEmitter<any> = new EventEmitter<any>();
+  public filePath:string;
+  public path:any;
 
 
   constructor() {
@@ -19,17 +23,53 @@ export class SketchLoader {
     this.electron = w.nodeRequire('electron');
     this.fs = w.nodeRequire('fs');
     this.JSZip = w.nodeRequire('jszip');
+    this.path = w.nodeRequire('path');
+  }
+
+
+  watchFile(filePath: string) {
+    console.log("Watch ", filePath);
+    this.fs.watchFile(filePath, {interval: 1, persistent: true}, (event, filename) => {
+      console.log(filename + ' file Changed ...');
+      this.filePath = filePath;
+
+      this.fs.readFile(filePath, (err, data) => {
+
+        if (err) {
+          throw err
+        }
+        ;
+        this.readFile(data).then((data) => {
+          // resolve(data);
+          this.onFileChanged.emit(data);
+        });
+      });
+      if (filename) {
+        console.log('Event : ' + event);
+        console.log(filename + ' file Changed ...');
+        //file = fs.readFileSync(filePath);
+        //console.log('File content at : ' + new Date() + ' is \n' + file);
+        //this.watchFile(filePath);
+
+      }
+      else {
+        console.log('filename not provided')
+      }
+    });
   }
 
 
   openDialog() {
-    let promise = new Promise((resolve, reject)=> {
+    let promise = new Promise((resolve, reject) => {
       this.electron.remote.dialog.showOpenDialog({title: 'Select Skecth file'}, (file) => {
+        this.watchFile(file[0]);
         this.fs.readFile(file[0], (err, data) => {
+          this.filePath = file[0];
+
           if (err) {
-            throw err
+            throw err;
           }
-          ;
+
           this.readFile(data).then((data) => {
             resolve(data);
           });
@@ -42,7 +82,7 @@ export class SketchLoader {
 
   readFile(data) {
 
-    let resultData:any = {};
+    const resultData: any = {};
 
     return this.JSZip.loadAsync(data).then((zip) => {
       this.zip = zip;
@@ -51,6 +91,8 @@ export class SketchLoader {
       const images: Array<string> = Object.keys(zip.files).filter(x => x.endsWith('png'));
       resultData.pageKeys = pages;
       resultData.imageKeys = images;
+      resultData.filePath = this.filePath;
+      resultData.fileName = this.path.basename(this.filePath);
 
 
       let pagePromises = pages.map(x => this.zip.file(x).async('string'));
@@ -77,7 +119,6 @@ export class SketchLoader {
             file: pageKey
           };
         });
-
 
 
         return resultData;

@@ -2,6 +2,7 @@ import {Injectable, NgZone} from '@angular/core';
 import {NSArchiveParser} from './NSArchiveParser';
 import {Sketch2Svg} from './sketch2svg';
 import {SketchLoader} from './sketch.loader';
+import {SketchDocument} from "./sketch.document";
 
 @Injectable()
 export class SketchService {
@@ -29,15 +30,53 @@ export class SketchService {
   }
 
 
+  documents:Array<any> = [];
+  public selectedDocument:SketchDocument;
+
+
   public loadFile() {
 
     const w: any = window;
     this.bplistParser = w.nodeRequire('bplist-parser');
 
     this.sketchLoader = new SketchLoader();
+
+    /*
+    this.sketchLoader.onFileChanged.subscribe((data:any)=>{
+      data.pages.forEach((page, pageNum) => {
+        //page.data.$$level = 0;
+        this.findSymbolMasters(page.data);
+      });
+
+      data.pages.forEach((page, pageNum) => {
+        //page.data.$$level = 0;
+        this.fillSymbolInstances(page.data);
+      });
+
+      data.pages.forEach((page, pageNum) => {
+        page.data.$$level = 0;
+        this.analyzePage(page.data, 1, null, pageNum + '', '');
+      });
+      this.pages = data.pages;
+      this.loadedImages = data.imageMap;
+      this.zone.run(() => {
+        this.selectPage(this.pages[0]);
+      });
+    });
+    */
+
+
     this.sketchLoader.openDialog()
       .then((data: any) => {
 
+      const doc:SketchDocument = new SketchDocument(data);
+      this.documents.push(doc);
+      this.selectedDocument = doc;
+
+
+      this.selectedDocument.getSymbolDoc('testid');
+
+      /*
         data.pages.forEach((page, pageNum) => {
           //page.data.$$level = 0;
           this.findSymbolMasters(page.data);
@@ -61,7 +100,11 @@ export class SketchService {
 
         //let svg:Sketch2Svg = new Sketch2Svg();
         //console.log(svg.convert(this.pages[0].data, this, 'myOval'));
+        */
       });
+
+
+
   }
 
 
@@ -244,7 +287,7 @@ export class SketchService {
 
     const componentToHex = (c) => {
       const hex = c.toString(16);
-      return hex.length == 1 ? '0' + hex : hex;
+      return hex.length === 1 ? '0' + hex : hex;
     };
 
 
@@ -280,6 +323,7 @@ export class SketchService {
     };
   }
 
+
   getLayerCoords(layer) {
     let x = 0;
     let y = 0;
@@ -292,10 +336,11 @@ export class SketchService {
     }
 
     return {
-      x: layer.frame.x,
-      y: layer.frame.y
+      x: x,
+      y: y
     };
   }
+
 
 
   getLayerRotation(layer) {

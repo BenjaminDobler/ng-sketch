@@ -14,6 +14,9 @@ export class SketchNavigationComponent implements OnInit, AfterViewInit {
   @Input()
   public pages: any;
 
+  @Input()
+  public documents: any;
+
 
   constructor(private sketchService:SketchService, private el:ElementRef) {
   }
