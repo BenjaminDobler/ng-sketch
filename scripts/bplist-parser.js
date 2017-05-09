@@ -23,9 +23,6 @@ var UID = function(id) {
 }
 
 
-console.log("Hallo")
-
-
 var parseBuffer = function (buffer) {
   var result = {};
 

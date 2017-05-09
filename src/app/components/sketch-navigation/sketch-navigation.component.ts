@@ -43,7 +43,8 @@ export class SketchNavigationComponent implements OnInit, AfterViewInit {
   }
 
   highlight(layer) {
-    this.sketchService.highlightedLayer = layer;
+    //this.sketchService.highlightedLayer = layer;
+
   }
 
 

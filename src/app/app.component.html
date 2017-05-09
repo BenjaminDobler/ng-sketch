@@ -9,7 +9,7 @@
   <div style="width:100%;display: flex;flex:1">
 
     <sketch-navigation [pages]="sketchService.selectedDocument?.pages" [documents]="sketchService.documents"></sketch-navigation>
-    <sketch-canvas [rootlayers]="sketchService.selectedDocument?.rootLayers"></sketch-canvas>
+    <sketch-canvas [svgData]="sketchService.selectedDocument?.svg"></sketch-canvas>
     <sketch-info [selectedLayer]="sketchService.selectedDocument?.highlightedLayer"></sketch-info>
     <!--
     <div style="width:350px;height:100%;overflow:scroll;background:#000;color:#fff">

@@ -28,7 +28,6 @@ export class SketchLoader {
 
 
   watchFile(filePath: string) {
-    console.log("Watch ", filePath);
     this.fs.watchFile(filePath, {interval: 1, persistent: true}, (event, filename) => {
       console.log(filename + ' file Changed ...');
       this.filePath = filePath;
@@ -45,8 +44,6 @@ export class SketchLoader {
         });
       });
       if (filename) {
-        console.log('Event : ' + event);
-        console.log(filename + ' file Changed ...');
         //file = fs.readFileSync(filePath);
         //console.log('File content at : ' + new Date() + ' is \n' + file);
         //this.watchFile(filePath);

@@ -14,9 +14,9 @@
 
   {{#if $$shapeGroup}}
     {{#each linearGradients}}
-      <linearGradient id="{{id}}" x1="{{x1}}" x2="{{x2}}" y1="{{y1}}" y2="{{y2}}"></linearGradient>
+      <linearGradient id="{{id}}" x1="{{x1}}" x2="{{x2}}" y1="{{y1}}" y2="{{y2}}">
         {{#each stops}}
-          <stop stop-color="{{color}}" stop-opacity="{{opacity}}" ></stop>
+          <stop stop-color="{{color}}" stop-opacity="{{opacity}}" offset="{{offset}}"></stop>
         {{/each}}
       </linearGradient>
     {{/each}}
@@ -24,12 +24,11 @@
     {{#each radialGradients}}
           <radialGradient id="{{id}}" x1="{{x1}}" x2="{{x2}}" y1="{{y1}}" y2="{{y2}}"></linearGradient>
             {{#each stops}}
-              <stop stop-color="{{color}}" stop-opacity="{{opacity}}" ></stop>
+              <stop stop-color="{{color}}" stop-opacity="{{opacity}}" offset="{{offset}}" ></stop>
             {{/each}}
           </radialGradient>
     {{/each}}
     {{#each layers}}
-    {{$$drawAsCircle}}
       {{#if $$drawAsCircle}}
         <circle cx="{{$$cx}}" cy="{{$$cy}}" r="{{$$radius}}"></circle>
       {{/if}}
@@ -64,11 +63,11 @@
 
 
 {{#if $$bitmap}}
-  <image id="{{id}}" x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" xlink:href="{{$$imageData}}" mask="url(#mask{{maskId}})> </image>
+  <image id="{{id}}" x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" xlink:href="{{$$imageData}}" mask="url(#mask{{maskId}})"> </image>
 {{/if}}
 
 {{#if $$text}}
-<text [id]="{{id}}" fill="{{$$fontColor}}" fill-opacity="{{$$fillOpacity}}" font-size="{{$$fontSize}}" font-family="{{$$fontFamily}}" x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" mask="url(#mask{{maskId}})" >
+<text id="{{id}}" fill="{{$$fontColor}}" fill-opacity="{{$$fillOpacity}}" font-size="{{$$fontSize}}" font-family="{{$$fontFamily}}" x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" mask="url(#mask{{maskId}})" >
   {{decodedTextAttributes.NSString}}
 </text>
 

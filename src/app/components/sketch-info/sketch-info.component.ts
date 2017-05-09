@@ -57,4 +57,14 @@ export class SketchInfoComponent implements OnInit {
     }
   }
 
+  getSelectedSvgSymbol() {
+    if (this.sketchService.selectedSymbolId) {
+      return this.sketchService.selectedDocument.getLayerSymbol(this.sketchService.selectedSymbolId);
+    } else {
+      return '<svg></svg>';
+    }
+
+  }
+
+
 }

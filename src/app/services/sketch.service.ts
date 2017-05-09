@@ -24,6 +24,8 @@ export class SketchService {
 
   layerNameMap = {};
 
+  public selectedSymbolId:string;
+
 
   constructor(private zone: NgZone) {
 

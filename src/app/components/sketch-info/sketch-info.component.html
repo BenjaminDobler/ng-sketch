@@ -11,6 +11,6 @@
 </pre>
 
 <pre *ngIf="selected==='SVG'">
-  {{getSVG()}}
+  <sketch-canvas [svgData]="getSelectedSvgSymbol()"></sketch-canvas>
 </pre>
 

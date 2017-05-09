@@ -34,6 +34,7 @@ export class SketchTextComponent implements OnInit {
     this.properties.fillOpacity = this._data.$$fillOpacity;
   }
 
+
   ngOnInit() {
   }
 

@@ -32,7 +32,9 @@ export class SketchNavigationLayerComponent implements OnInit {
   private _data:any;
 
   highlight(layer) {
-    this.sketchService.highlightedLayer = layer;
+    //this.sketchService.highlightedLayer = layer;
+    //console.log(this.sketchService.selectedDocument.getLayerSymbol(layer.name));
+    this.sketchService.selectedSymbolId = layer.name;
   }
 
 

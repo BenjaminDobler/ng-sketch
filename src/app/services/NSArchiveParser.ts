@@ -10,8 +10,6 @@ export class NSArchiveParser {
 
     let result: any = {};
 
-    console.log(JSON.stringify(archive))
-
     let objects = archive[0].$objects;
     let root = archive[0].$top.root.UID;
 
@@ -54,17 +52,12 @@ export class NSArchiveParser {
     };
 
 
-    console.log("root", top);
-    console.log("objects ", objects);
-
     let topObj = objects[root];
     for (var key in topObj) {
       if (topObj[key].UID) {
         result[key] = getReferenceById(topObj[key].UID);
       }
     }
-    console.log("Top Object ", topObj);
-    console.log("Result ", result);
     return result;
     /*
      for(var i in topObj) {

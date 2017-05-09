@@ -27,11 +27,15 @@ export class SketchDocument {
   public filePath: string;
   public fileName: string;
 
+  public svg: string;
+  private Handlebars:any;
+  private svgTemplate:any;
 
   constructor(sourceData?: any) {
-    console.log("Source Data", sourceData);
     const w: any = window;
     this.bplistParser = w.nodeRequire('bplist-parser');
+    this.Handlebars = w.Handlebars;
+
 
     if (sourceData) {
       this.filePath = sourceData.filePath;
@@ -42,7 +46,19 @@ export class SketchDocument {
       this.selectPage(this.pages[0])
     }
 
+    this.loadTemplate();
 
+
+  }
+
+
+  loadTemplate() {
+    fetch('assets/templates/handlebars.tpl').then((data) => {
+      return data.text();
+    }).then((data: string) => {
+      this.Handlebars.registerPartial('layer', data);
+      this.svgTemplate = this.Handlebars.compile(data);
+    });
   }
 
 
@@ -59,7 +75,7 @@ export class SketchDocument {
 
     this.pages.forEach((page, pageNum) => {
       page.data.$$level = 0;
-      this.analyzeInitialLayer(page.data, 1, null, pageNum + '', '');
+      this.analyzeInitialLayer(page.data, 1, null, pageNum + '', '', '');
     });
 
 
@@ -70,7 +86,8 @@ export class SketchDocument {
   }
 
 
-  public analyzeInitialLayer(data: any, parent: any, level: number, id: string, maskId: string, rootSymbolId:string ='') {
+  public analyzeInitialLayer(data: any, parent: any, level: number, id: string, maskId: string, rootSymbolId: string = '') {
+    console.log("analyze Layer ", rootSymbolId)
     data.$$id = this.generateUUID();
     data.$$transform = this.getTransformation(data, rootSymbolId);
     this.objects[data.$$id] = data;
@@ -81,6 +98,7 @@ export class SketchDocument {
     data.$$shapeGroup = data._class === 'shapeGroup';
     data.$$bitmap = data._class === 'bitmap';
     data.$$text = data._class === 'bitmap';
+    this.symbolMap[data.name] = data;
 
 
     if (parent) {
@@ -228,7 +246,7 @@ export class SketchDocument {
       });
 
       data.layers.forEach((l) => {
-        l.$$path = this.getPath(l);
+        l.$$path = this.getPath(l, rootSymbolId);
 
         if (l.$$isRect) {
           l.$$rx = 0;
@@ -302,7 +320,7 @@ export class SketchDocument {
         let mId = '';
         const newLevel: number = level + 1;
         data[i].forEach((layer, index) => {
-          this.analyzeInitialLayer(layer, data, newLevel, id + '-' + index, mId);
+          this.analyzeInitialLayer(layer, data, newLevel, id + '-' + index, mId, rootSymbolId);
           if (layer.hasClippingMask) {
             hasClippingMask = true;
             mId = id + '-' + index;
@@ -373,13 +391,13 @@ export class SketchDocument {
   }
 
 
-  getPath(layer) {
+  getPath(layer, symbolId) {
     const points: Array<any> = [];
     layer.path.points.forEach((x) => {
       points.push({
-        from: this.toPoint(x.curveFrom, layer),
-        to: this.toPoint(x.curveTo, layer),
-        point: this.toPoint(x.point, layer),
+        from: this.toPoint(x.curveFrom, layer, symbolId),
+        to: this.toPoint(x.curveTo, layer, symbolId),
+        point: this.toPoint(x.point, layer, symbolId),
       });
     });
 
@@ -434,7 +452,7 @@ export class SketchDocument {
           rect.height = b.frame.height;
           shape = paper.Path.Rectangle(rect.x, rect.y, rect.width, rect.height);
         } else {
-          shape = new paper.Path(this.getPath(b));
+          shape = new paper.Path(this.getPath(b, symbolId));
         }
 
 
@@ -483,7 +501,7 @@ export class SketchDocument {
   }
 
 
-  getTransformation(data, rootSymbolId:string) {
+  getTransformation(data, rootSymbolId: string) {
     const coords = this.getLayerCoords(data, rootSymbolId);
     const w = data.frame.width;
     const h = data.frame.height;
@@ -513,7 +531,7 @@ export class SketchDocument {
 
   }
 
-  toPoint(p: any, layer?, rootSymbolId?:string) {
+  toPoint(p: any, layer?, rootSymbolId?: string) {
     let coords = {x: 0, y: 0};
     let refWidth = 1;
     let refHeight = 1;
@@ -534,16 +552,18 @@ export class SketchDocument {
   }
 
 
-  getLayerCoords(layer, rootLayerId:string) {
+  getLayerCoords(layer, rootLayerId: string) {
     let x = 0;
     let y = 0;
     let parentLayer: any;
-    while (layer.parent) {
+    while (layer.parent && layer.name != rootLayerId) {
+
       parentLayer = this.objects[layer.parent];
       x += layer.frame.x;
       y += layer.frame.y;
       layer = parentLayer;
     }
+
 
     return {
       x: x,
@@ -642,37 +662,45 @@ export class SketchDocument {
   }
 
 
-
-  getSymbolDoc(id:string) {
+  getSymbolDoc(id: string) {
     const symbol = new SketchSymbol(this, id);
   }
 
 
-
   render(context) {
 
-    fetch('assets/templates/handlebars.tpl').then((data)=>{
+    fetch('assets/templates/handlebars.tpl').then((data) => {
       return data.text();
-    }).then((data:string)=>{
-      console.log("Template ", data);
-      let w:any = window;
+    }).then((data: string) => {
+      //console.log("Template ", data);
+      let w: any = window;
 
       w.Handlebars.registerPartial('layer', data);
       var template = w.Handlebars.compile(data);
-      console.log("TPL ", template(context));
+      //console.log("TPL ", template(context));
+      this.svg = template(context);
     });
-
 
 
   }
 
 
+  svgSymbolMap: any = {};
+
+
+  getLayerSymbol(symbolId: string) {
+    if (this.svgSymbolMap[symbolId]) {
+      return this.svgSymbolMap[symbolId];
+    }
+    let clone: any = JSON.parse(JSON.stringify(this.symbolMap[symbolId]));
+    this.analyzeInitialLayer(clone, 1, null, 'synmbol' + '', '', symbolId);
+    const svg = this.svgTemplate(clone);
+    this.svgSymbolMap[symbolId] = svg;
+    return svg;
+  }
+
 
 }
-
-
-
-
 
 
 export class SketchSymbol extends SketchDocument {
@@ -681,8 +709,7 @@ export class SketchSymbol extends SketchDocument {
   constructor(document: SketchDocument, symbolId: string) {
     super();
 
-    let pageClone: any = JSON.parse(JSON.stringify(document.pages[0]));
-    console.log("Page Clone ", pageClone);
+    //let pageClone: any = JSON.parse(JSON.stringify(document.pages[0]));
     //this.analyzeInitialLayer(pageClone,)
 
 
