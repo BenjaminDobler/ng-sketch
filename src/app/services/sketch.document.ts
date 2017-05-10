@@ -28,8 +28,8 @@ export class SketchDocument {
   public fileName: string;
 
   public svg: string;
-  private Handlebars:any;
-  private svgTemplate:any;
+  private Handlebars: any;
+  private svgTemplate: any;
 
   constructor(sourceData?: any) {
     const w: any = window;
@@ -38,26 +38,36 @@ export class SketchDocument {
 
 
     if (sourceData) {
-      this.filePath = sourceData.filePath;
-      this.fileName = sourceData.fileName;
-      this.pages = sourceData.pages;
-      this.loadedImages = sourceData.imageMap;
-      this.initPages();
-      this.selectPage(this.pages[0])
+
+      this.loadTemplate(()=>{
+        this.filePath = sourceData.filePath;
+        this.fileName = sourceData.fileName;
+        this.pages = sourceData.pages;
+        this.loadedImages = sourceData.imageMap;
+        this.initPages();
+      });
+
+      //this.selectPage(this.pages[0])
+    } else {
+      this.loadTemplate();
     }
 
-    this.loadTemplate();
+
 
 
   }
 
 
-  loadTemplate() {
+  loadTemplate(cb?:any) {
+    console.log("Load Template");
     fetch('assets/templates/handlebars.tpl').then((data) => {
       return data.text();
     }).then((data: string) => {
       this.Handlebars.registerPartial('layer', data);
       this.svgTemplate = this.Handlebars.compile(data);
+      if (cb) {
+        cb();
+      }
     });
   }
 
@@ -79,10 +89,23 @@ export class SketchDocument {
     });
 
 
-    this.render(this.pages[0].data);
+    this.selectPage(this.pages[0].data.name);
 
 
     //this.loadedImages = data.imageMap;
+  }
+
+  selectPage(pageName) {
+    if (this.pageSVGMap[pageName]) {
+      console.log("Cached Page");
+      this.svg = this.pageSVGMap[pageName];
+    } else {
+      const page = this.pages.filter(x => x.data.name === pageName).pop();
+      let svg:string = this.render(page.data);
+      this.pageSVGMap[pageName] = svg;
+      this.svg = svg;
+    }
+
   }
 
 
@@ -214,7 +237,7 @@ export class SketchDocument {
     if (data._class === 'text') {
       const p: any = this.getLayerCoords(data, rootSymbolId);
       data.$$x = p.x;
-      data.$$y = p.y;
+      data.$$y = p.y + data.frame.height;
       data.$$transform = this.getTransformation(data, rootSymbolId);
     }
 
@@ -384,12 +407,12 @@ export class SketchDocument {
     }
   }
 
-
+/*
   public selectPage(page) {
     this.page = page;
     this.rootLayers = [page.data];
   }
-
+*/
 
   getPath(layer, symbolId) {
     const points: Array<any> = [];
@@ -667,21 +690,15 @@ export class SketchDocument {
   }
 
 
+
+  pageSVGMap:any = {};
+
+
   render(context) {
-
-    fetch('assets/templates/handlebars.tpl').then((data) => {
-      return data.text();
-    }).then((data: string) => {
-      //console.log("Template ", data);
-      let w: any = window;
-
-      w.Handlebars.registerPartial('layer', data);
-      var template = w.Handlebars.compile(data);
-      //console.log("TPL ", template(context));
-      this.svg = template(context);
-    });
-
-
+    console.log("Render");
+    let svg = this.svgTemplate(context);
+    this.svg = svg;
+    return svg;
   }
 
 
