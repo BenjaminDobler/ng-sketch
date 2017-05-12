@@ -59,7 +59,6 @@ export class SketchDocument {
 
 
   loadTemplate(cb?:any) {
-    console.log("Load Template");
     fetch('assets/templates/handlebars.tpl').then((data) => {
       return data.text();
     }).then((data: string) => {
@@ -97,7 +96,6 @@ export class SketchDocument {
 
   selectPage(pageName) {
     if (this.pageSVGMap[pageName]) {
-      console.log("Cached Page");
       this.svg = this.pageSVGMap[pageName];
     } else {
       const page = this.pages.filter(x => x.data.name === pageName).pop();
@@ -110,7 +108,6 @@ export class SketchDocument {
 
 
   public analyzeInitialLayer(data: any, parent: any, level: number, id: string, maskId: string, rootSymbolId: string = '') {
-    console.log("analyze Layer ", rootSymbolId)
     data.$$id = this.generateUUID();
     data.$$transform = this.getTransformation(data, rootSymbolId);
     this.objects[data.$$id] = data;
@@ -312,7 +309,7 @@ export class SketchDocument {
         }
 
         if (l.$$isCircle && l.booleanOperation <= 0) {
-          l.$$drawAsCircle = true;
+          //l.$$drawAsCircle = true;
         }
 
         if (l.$$isLine && l.booleanOperation <= 0) {
@@ -337,6 +334,7 @@ export class SketchDocument {
       data.$$strokeWidth = this.getStrokeWidth(data);
 
     }
+
 
 
     for (const i in data) {
@@ -617,11 +615,14 @@ export class SketchDocument {
       return '#000';
     }
     const color: any = shapeGroup.style.borders[0].color;
+    if (!shapeGroup.style.borders[0].isEnabled) {
+      return '';
+    }
     return this.colorToHex(color);
   }
 
   getStrokeWidth(shapeGroup) {
-    if (shapeGroup.style.borders) {
+    if (shapeGroup.style.borders && shapeGroup.style.borders[0].isEnabled) {
       return shapeGroup.style.borders[0].thickness;
     }
     return 0;
@@ -698,7 +699,6 @@ export class SketchDocument {
 
 
   render(context) {
-    console.log("Render");
     let svg = this.svgTemplate(context);
     this.svg = svg;
     return svg;

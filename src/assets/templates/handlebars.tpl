@@ -1,15 +1,15 @@
 <!-- START DEFS -->
 <defs>
-{{#each masks}}
-  <mask id="mask{{id}}">
-  {{#each layers}}
-    {{#if $$isRect}}
-      <rect id="{{id}}" x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" />
-    {{else}}
-      <path id="{{id}}" d="{{$$path}}" transform="{{$$transform}}" />
-    {{/if}}
-  {{/each}}
-  </mask>
+  {{#each masks}}
+    <mask id="mask{{id}}">
+    {{#each layers}}
+      {{#if $$isRect}}
+        <rect id="{{id}}" x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" />
+      {{else}}
+        <path id="{{id}}" d="{{$$path}}" transform="{{$$transform}}" />
+      {{/if}}
+    {{/each}}
+    </mask>
   {{/each}}
 
   {{#if $$shapeGroup}}
@@ -28,6 +28,7 @@
             {{/each}}
           </radialGradient>
     {{/each}}
+
     {{#each layers}}
       {{#if $$drawAsCircle}}
         <circle cx="{{$$cx}}" cy="{{$$cy}}" r="{{$$radius}}"></circle>
@@ -42,6 +43,7 @@
         <path id="{{id}}" d="{{$$path}}" transform="{{$$transform}}" />
       {{/if}}
     {{/each}}
+
   {{/if}}
 </defs>
 <!-- END DEFS -->
@@ -73,6 +75,7 @@
 </text>
 
 {{/if}}
+
 
 {{#each layers}}
   {{> layer}}
