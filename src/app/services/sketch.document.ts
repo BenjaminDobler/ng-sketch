@@ -295,8 +295,8 @@ export class SketchDocument {
           const p4: any = this.toPoint(l.path.points[3].point, l, rootSymbolId);
 
 
-          l.$$cx = p4.x + ((p2.x-p4.x)/2);
-          l.$$cy = p3.y + ((p1.y - p3.y)/2);
+          l.$$cx = p4.x + ((p2.x - p4.x) / 2);
+          l.$$cy = p3.y + ((p1.y - p3.y) / 2);
 
           l.$$radius = (p1.y - p3.y) / 2;
 
@@ -503,21 +503,11 @@ export class SketchDocument {
     }
     const rectPoints = data.points.map(x => this.toPoint(x.point, frame));
     if (rectPoints.length === 4) {
-      let isRect = this.IsRectangleAnyOrder(rectPoints[0], rectPoints[1], rectPoints[2], rectPoints[3]);
-      let hasCurveTo = data.points.filter(x => x.hasCurveTo === true).length > 0;
+      const isRect: boolean = this.IsRectangleAnyOrder(rectPoints[0], rectPoints[1], rectPoints[2], rectPoints[3]);
+      const hasCurveTo: boolean = data.points.filter(x => x.hasCurveTo === true).length > 0;
       return isRect && !hasCurveTo;
     }
     return false;
-
-    /*
-     .filter((p) => {
-     if ((p.x === 0 || p.x === 1) && (p.y === 0 || p.y === 1)) {
-     return true;
-     }
-     return false;
-     });
-     return rectPoints.length === data.points.length;
-     */
   }
 
   isSqu(data, frame) {
@@ -525,8 +515,7 @@ export class SketchDocument {
       return false;
     }
     const rectPoints = data.points.map(x => this.toPoint(x.point, frame));
-    let isSquare = this.isSquare(rectPoints[0], rectPoints[1], rectPoints[2], rectPoints[3]);
-    console.log("Is Sqare? ", isSquare);
+    const isSquare = this.isSquare(rectPoints[0], rectPoints[1], rectPoints[2], rectPoints[3]);
     return isSquare;
   }
 
@@ -535,17 +524,12 @@ export class SketchDocument {
     if (data.points.length !== 4) {
       return false;
     }
-    let isSquare = this.isSqu(data, frame);
-    console.log("CHECK CIRCLE IS SQU ", isSquare, data, frame);
-    let hasCurveTo = data.points.filter(x => x.hasCurveTo === true).length === 4;
-    if (isSquare) {
-      console.log("Square Curves ", data.points.filter(x => x.hasCurveTo === true).length);
-    }
+    const isSquare: boolean = this.isSqu(data, frame);
+    const hasCurveTo: boolean = data.points.filter(x => x.hasCurveTo === true).length === 4;
     if (isSquare && hasCurveTo) {
       return true;
     }
     return false;
-
   }
 
 
@@ -765,8 +749,7 @@ export class SketchDocument {
 
   isSquare(p1, p2, p3, p4) {
 
-    let distSq = (p, q)=>
-    {
+    let distSq = (p, q) => {
       return (p.x - q.x) * (p.x - q.x) +
         (p.y - q.y) * (p.y - q.y);
     }
@@ -782,7 +765,7 @@ export class SketchDocument {
     let s3 = distSq(p3, p4);
     let s4 = distSq(p4, p1);
 
-    let allSidesSame:boolean = s1 === s2 && s2 === s3 && s3===s4;
+    let allSidesSame: boolean = s1 === s2 && s2 === s3 && s3 === s4;
     console.log("All Sides Same ", allSidesSame);
     // If lengths if (p1, p2) and (p1, p3) are same, then
     // following conditions must met to form a square.
