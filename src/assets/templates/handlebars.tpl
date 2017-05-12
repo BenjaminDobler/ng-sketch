@@ -56,6 +56,7 @@
       stroke-width="{{../$$strokeWidth}}"
       fill="{{../$$fill}}"
       fill-rule="evenodd"
+      fill-opacity="{{../$$opacity}}"
       xlink:href="#{{id}}"></use>
     {{/each}}
   </g>

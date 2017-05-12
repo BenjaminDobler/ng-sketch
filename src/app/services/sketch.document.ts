@@ -189,6 +189,10 @@ export class SketchDocument {
       data.$$fontSize = this.getFontSize(data);
       data.$$fontFamily = this.getFontFamily(data);
       data.$$text = data.decodedTextAttributes.NSString;
+      const p: any = this.getLayerCoords(data, rootSymbolId);
+      data.$$x = p.x;
+      data.$$y = p.y + data.$$fontSize; // is this the baseline? SVG text is positioned at baseline not top/left...
+      data.$$transform = this.getTransformation(data, rootSymbolId);
 
 
     }
@@ -234,12 +238,11 @@ export class SketchDocument {
       data.$$transform = this.getTransformation(data, rootSymbolId);
     }
 
-    if (data._class === 'text') {
-      const p: any = this.getLayerCoords(data, rootSymbolId);
-      data.$$x = p.x;
-      data.$$y = p.y + data.frame.height;
-      data.$$transform = this.getTransformation(data, rootSymbolId);
+    if (data.style && data.style.contextSettings && data.style.contextSettings.opacity) {
+      data.$$opacity = data.style.contextSettings.opacity;
     }
+
+
 
     if (data._class === 'shapeGroup') {
       let currentBooleanOperationTarget;

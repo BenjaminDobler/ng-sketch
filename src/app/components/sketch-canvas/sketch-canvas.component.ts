@@ -58,14 +58,14 @@ export class SketchCanvasComponent implements OnInit, AfterViewInit {
 
   getLeftHighlightStyle() {
     if (this.sketchService.highlightedLayer) {
-     // return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).x+"px";
+      return this.sketchService.selectedDocument.getLayerCoords(this.sketchService.highlightedLayer,'').x+"px";
     }
     return '0px';
   }
 
   getTopHighlightStyle() {
     if (this.sketchService.highlightedLayer) {
-      //return this.sketchService.getLayerCoords(this.sketchService.highlightedLayer).y+"px";
+      return this.sketchService.selectedDocument.getLayerCoords(this.sketchService.highlightedLayer,'').y+"px";
     }
     return '0px';
   }
