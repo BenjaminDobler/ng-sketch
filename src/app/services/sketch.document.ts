@@ -39,7 +39,7 @@ export class SketchDocument {
 
     if (sourceData) {
 
-      this.loadTemplate(()=>{
+      this.loadTemplate(() => {
         this.filePath = sourceData.filePath;
         this.fileName = sourceData.fileName;
         this.pages = sourceData.pages;
@@ -53,12 +53,10 @@ export class SketchDocument {
     }
 
 
-
-
   }
 
 
-  loadTemplate(cb?:any) {
+  loadTemplate(cb?: any) {
     fetch('assets/templates/handlebars.tpl').then((data) => {
       return data.text();
     }).then((data: string) => {
@@ -99,7 +97,7 @@ export class SketchDocument {
       this.svg = this.pageSVGMap[pageName];
     } else {
       const page = this.pages.filter(x => x.data.name === pageName).pop();
-      let svg:string = this.render(page.data);
+      let svg: string = this.render(page.data);
       this.pageSVGMap[pageName] = svg;
       this.svg = svg;
     }
@@ -108,6 +106,8 @@ export class SketchDocument {
 
 
   public analyzeInitialLayer(data: any, parent: any, level: number, id: string, maskId: string, rootSymbolId: string = '') {
+    console.log("");
+    console.log("Layer ", data.name, "    ", data._class);
     data.$$id = this.generateUUID();
     data.$$transform = this.getTransformation(data, rootSymbolId);
     this.objects[data.$$id] = data;
@@ -240,7 +240,6 @@ export class SketchDocument {
     }
 
 
-
     if (data._class === 'shapeGroup') {
       let currentBooleanOperationTarget;
       data.layers.forEach((l, index) => {
@@ -254,9 +253,11 @@ export class SketchDocument {
           currentBooleanOperationTarget.booleanOperationObjects = [];
         }
 
-        l.$$isRect = this.isRect(l.path);
+        l.$$isRect = this.isRect(l.path, data);
         l.$$isLine = this.isLine(l.path);
-        l.$$isCircle = this.isCircle(l.path);
+        l.$$isCircle = this.isCircle(l.path, data);
+
+        console.log("IS CIRCLE ? ", l.$$isCircle);
 
       });
 
@@ -290,11 +291,14 @@ export class SketchDocument {
         if (l.$$isCircle) {
           const p1: any = this.toPoint(l.path.points[0].point, l, rootSymbolId);
           const p2: any = this.toPoint(l.path.points[1].point, l, rootSymbolId);
-          const p3: any = this.toPoint(l.path.points[1].point, l, rootSymbolId);
-          l.$$cx = p2.x - p1.x;
-          l.$$cy = p2.y - p1.y;
+          const p3: any = this.toPoint(l.path.points[2].point, l, rootSymbolId);
+          const p4: any = this.toPoint(l.path.points[3].point, l, rootSymbolId);
 
-          l.$$radius = 100;
+
+          l.$$cx = p4.x + ((p2.x-p4.x)/2);
+          l.$$cy = p3.y + ((p1.y - p3.y)/2);
+
+          l.$$radius = (p1.y - p3.y) / 2;
 
         }
 
@@ -309,7 +313,7 @@ export class SketchDocument {
         }
 
         if (l.$$isCircle && l.booleanOperation <= 0) {
-          //l.$$drawAsCircle = true;
+          l.$$drawAsCircle = true;
         }
 
         if (l.$$isLine && l.booleanOperation <= 0) {
@@ -334,7 +338,6 @@ export class SketchDocument {
       data.$$strokeWidth = this.getStrokeWidth(data);
 
     }
-
 
 
     for (const i in data) {
@@ -408,12 +411,12 @@ export class SketchDocument {
     }
   }
 
-/*
-  public selectPage(page) {
-    this.page = page;
-    this.rootLayers = [page.data];
-  }
-*/
+  /*
+   public selectPage(page) {
+   this.page = page;
+   this.rootLayers = [page.data];
+   }
+   */
 
   getPath(layer, symbolId) {
     const points: Array<any> = [];
@@ -494,26 +497,55 @@ export class SketchDocument {
     return path;
   }
 
-  isRect(data): boolean {
-    const rectPoints = data.points.map(x => this.toPoint(x.point)).filter((p) => {
-      if ((p.x === 0 || p.x === 1) && (p.y === 0 || p.y === 1)) {
-        return true;
-      }
+  isRect(data, frame): boolean {
+    if (data.points.length !== 4) {
       return false;
-    });
-    return rectPoints.length === data.points.length;
+    }
+    const rectPoints = data.points.map(x => this.toPoint(x.point, frame));
+    if (rectPoints.length === 4) {
+      let isRect = this.IsRectangleAnyOrder(rectPoints[0], rectPoints[1], rectPoints[2], rectPoints[3]);
+      let hasCurveTo = data.points.filter(x => x.hasCurveTo === true).length > 0;
+      return isRect && !hasCurveTo;
+    }
+    return false;
+
+    /*
+     .filter((p) => {
+     if ((p.x === 0 || p.x === 1) && (p.y === 0 || p.y === 1)) {
+     return true;
+     }
+     return false;
+     });
+     return rectPoints.length === data.points.length;
+     */
+  }
+
+  isSqu(data, frame) {
+    if (data.points.length !== 4) {
+      return false;
+    }
+    const rectPoints = data.points.map(x => this.toPoint(x.point, frame));
+    let isSquare = this.isSquare(rectPoints[0], rectPoints[1], rectPoints[2], rectPoints[3]);
+    console.log("Is Sqare? ", isSquare);
+    return isSquare;
   }
 
 
-  isCircle(data): boolean {
-    const isCurved: boolean = data.points.filter(x => (x.hasCurveTo && x.hasCurveFrom)).length === 0;
-    const rectPoints = data.points.map(x => this.toPoint(x.point)).filter((p) => {
-      if (isCurved && (p.x === 0 || p.x === 1 || p.x === 0.5) && (p.y === 0 || p.y === 1 || p.y === 0.5)) {
-        return true;
-      }
+  isCircle(data, frame): boolean {
+    if (data.points.length !== 4) {
       return false;
-    });
-    return (rectPoints.length === data.points.length) && isCurved;
+    }
+    let isSquare = this.isSqu(data, frame);
+    console.log("CHECK CIRCLE IS SQU ", isSquare, data, frame);
+    let hasCurveTo = data.points.filter(x => x.hasCurveTo === true).length === 4;
+    if (isSquare) {
+      console.log("Square Curves ", data.points.filter(x => x.hasCurveTo === true).length);
+    }
+    if (isSquare && hasCurveTo) {
+      return true;
+    }
+    return false;
+
   }
 
 
@@ -694,8 +726,7 @@ export class SketchDocument {
   }
 
 
-
-  pageSVGMap:any = {};
+  pageSVGMap: any = {};
 
 
   render(context) {
@@ -717,6 +748,63 @@ export class SketchDocument {
     const svg = this.svgTemplate(clone);
     this.svgSymbolMap[symbolId] = svg;
     return svg;
+  }
+
+
+  IsOrthogonal(a, b, c) {
+    return (b.x - a.x) * (b.x - c.x) + (b.y - a.y) * (b.y - c.y) === 0;
+  }
+
+  IsRectangle(a, b, c, d) {
+    return this.IsOrthogonal(a, b, c) && this.IsOrthogonal(b, c, d) && this.IsOrthogonal(c, d, a);
+  }
+
+  IsRectangleAnyOrder(a, b, c, d) {
+    return this.IsRectangle(a, b, c, d) || this.IsRectangle(b, c, a, d) || this.IsRectangle(c, a, b, d);
+  }
+
+  isSquare(p1, p2, p3, p4) {
+
+    let distSq = (p, q)=>
+    {
+      return (p.x - q.x) * (p.x - q.x) +
+        (p.y - q.y) * (p.y - q.y);
+    }
+
+
+    let d2 = distSq(p1, p2);  // from p1 to p2
+    let d3 = distSq(p1, p3);  // from p1 to p3
+    let d4 = distSq(p1, p4);  // from p1 to p4
+
+
+    let s1 = distSq(p1, p2);
+    let s2 = distSq(p2, p3);
+    let s3 = distSq(p3, p4);
+    let s4 = distSq(p4, p1);
+
+    let allSidesSame:boolean = s1 === s2 && s2 === s3 && s3===s4;
+    console.log("All Sides Same ", allSidesSame);
+    // If lengths if (p1, p2) and (p1, p3) are same, then
+    // following conditions must met to form a square.
+    // 1) Square of length of (p1, p4) is same as twice
+    //    the square of (p1, p2)
+    // 2) p4 is at same distance from p2 and p3
+    if (d2 == d3 && 2 * d2 == d4) {
+      let d = distSq(p2, p4);
+      return (d == distSq(p3, p4) && d == d2);
+    }
+
+// The below two cases are similar to above case
+    if (d3 == d4 && 2 * d3 == d2) {
+      let d = distSq(p2, p3);
+      return (d == distSq(p2, p4) && d == d3);
+    }
+    if (d2 == d4 && 2 * d2 == d3) {
+      let d = distSq(p2, p3);
+      return (d == distSq(p3, p4) && d == d2);
+    }
+
+    return false;
   }
 
 

@@ -31,7 +31,7 @@
 
     {{#each layers}}
       {{#if $$drawAsCircle}}
-        <circle cx="{{$$cx}}" cy="{{$$cy}}" r="{{$$radius}}"></circle>
+        <circle id="{{id}}" cx="{{$$cx}}" cy="{{$$cy}}" r="{{$$radius}}"></circle>
       {{/if}}
       {{#if $$drawAsRect}}
         <rect id="{{id}}" x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" ></rect>
