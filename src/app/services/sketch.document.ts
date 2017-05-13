@@ -82,7 +82,7 @@ export class SketchDocument {
 
     this.pages.forEach((page, pageNum) => {
       page.data.$$level = 0;
-      this.analyzeInitialLayer(page.data, 1, null, pageNum + '', '', '');
+      this.analyzeInitialLayer(page.data, null, pageNum + '', '', '');
     });
 
 
@@ -104,16 +104,21 @@ export class SketchDocument {
 
   }
 
+  private idCount: number = 0;
 
-  public analyzeInitialLayer(data: any, parent: any, level: number, id: string, maskId: string, rootSymbolId: string = '') {
-    console.log("");
-    console.log("Layer ", data.name, "    ", data._class);
-    data.$$id = this.generateUUID();
+
+  public analyzeInitialLayer(data: any, parent: any, id: any, maskId: any, rootSymbolId: string = '') {
+    data.$$id = id;//this.generateUUID();
     data.$$transform = this.getTransformation(data, rootSymbolId);
     this.objects[data.$$id] = data;
     this.layerNameMap[data.name] = data;
     data.masks = [];
-    data.$$level = level;
+
+    if (parent && parent.$$level) {
+      data.$$level = parent.$$level + 1;
+    } else {
+      data.$$level = 1;
+    }
 
     data.$$shapeGroup = data._class === 'shapeGroup';
     data.$$bitmap = data._class === 'bitmap';
@@ -125,8 +130,7 @@ export class SketchDocument {
       data.parent = parent.$$id;
     }
 
-    data.maskId = maskId;
-    data.id = id;
+    data.$$maskId = maskId;
 
     const w: any = window;
     const b: any = w.Buffer;
@@ -206,7 +210,7 @@ export class SketchDocument {
         linearGradient.y1 = from.y * 100 + '%';
         linearGradient.y2 = to.y * 100 + '%';
         linearGradient.stops = [];
-        linearGradient.id = 'gradient-' + data.id;
+        linearGradient.id = 'gradient-' + data.$$id;
 
         gradient.stops.forEach((stop) => {
           const hex: string = this.colorToHex(stop.color);
@@ -339,25 +343,22 @@ export class SketchDocument {
 
     }
 
+    if (data.layers) {
+      let hasClippingMask = false;
+      let mId: any;
+      data.layers.forEach((layer, index) => {
+        let newId = this.generateUUID();
+        this.analyzeInitialLayer(layer, data, newId, mId, rootSymbolId);
+        if (layer.hasClippingMask) {
+          hasClippingMask = true;
+          mId = newId;
+          data.masks.push(layer);
+        }
 
-    for (const i in data) {
-
-      if (i === 'layers') {
-        let hasClippingMask = false;
-        let mId = '';
-        const newLevel: number = level + 1;
-        data[i].forEach((layer, index) => {
-          this.analyzeInitialLayer(layer, data, newLevel, id + '-' + index, mId, rootSymbolId);
-          if (layer.hasClippingMask) {
-            hasClippingMask = true;
-            mId = id + '-' + index;
-            data.masks.push(layer);
-          }
-
-        });
-
-      }
+      });
     }
+
+    return data.$$id;
 
 
   }
@@ -693,15 +694,8 @@ export class SketchDocument {
 
 
   generateUUID() { // Public Domain/MIT
-    let d = new Date().getTime();
-    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-      d += performance.now(); //use high-precision timer if available
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-      const r = (d + Math.random() * 16) % 16 | 0;
-      d = Math.floor(d / 16);
-      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-    });
+    this.idCount++;
+    return this.idCount;
   }
 
 
@@ -728,7 +722,7 @@ export class SketchDocument {
       return this.svgSymbolMap[symbolId];
     }
     let clone: any = JSON.parse(JSON.stringify(this.symbolMap[symbolId]));
-    this.analyzeInitialLayer(clone, 1, null, 'synmbol' + '', '', symbolId);
+    this.analyzeInitialLayer(clone, null, 'synmbol' + '', '', symbolId);
     const svg = this.svgTemplate(clone);
     this.svgSymbolMap[symbolId] = svg;
     return svg;
