@@ -76,6 +76,36 @@ export class SketchLoader {
     return promise;
   }
 
+  load(url:string) {
+    return new Promise((resolve, reject)=>{
+      console.log("Load")
+      var oReq = new XMLHttpRequest();
+      oReq.open("GET", url, true);
+      oReq.responseType = "arraybuffer";
+
+      oReq.onload =  (oEvent)=> {
+
+        var arrayBuffer = oReq.response; // Note: not oReq.responseText
+        this.filePath = url;
+        console.log("Loaded ", arrayBuffer);
+        this.readFile(arrayBuffer).then((data)=>{
+          resolve(data);
+        });
+        /*
+         if (arrayBuffer) {
+         var byteArray = new Uint8Array(arrayBuffer);
+         for (var i = 0; i < byteArray.byteLength; i++) {
+         // do something with each byte in the array
+         }
+         }
+         */
+      };
+      oReq.send(null);
+    });
+
+
+  }
+
 
   readFile(data) {
 
@@ -90,6 +120,7 @@ export class SketchLoader {
       resultData.imageKeys = images;
       resultData.filePath = this.filePath;
       resultData.fileName = this.path.basename(this.filePath);
+      console.log("Pages ", pages);
 
 
       let pagePromises = pages.map(x => this.zip.file(x).async('string'));
@@ -117,6 +148,7 @@ export class SketchLoader {
           };
         });
 
+        console.log("Result Data ", resultData);
 
         return resultData;
 

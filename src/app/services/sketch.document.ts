@@ -39,20 +39,26 @@ export class SketchDocument {
 
     if (sourceData) {
 
-      this.loadTemplate(() => {
-        this.filePath = sourceData.filePath;
-        this.fileName = sourceData.fileName;
-        this.pages = sourceData.pages;
-        this.loadedImages = sourceData.imageMap;
-        this.initPages();
-      });
+     this.setData(sourceData);
 
-      //this.selectPage(this.pages[0])
     } else {
       this.loadTemplate();
     }
 
 
+  }
+
+
+  setData(data:any) {
+    this.pageSVGMap = {};
+    this.loadTemplate(() => {
+      console.log("========= Set Data")
+      this.filePath = data.filePath;
+      this.fileName = data.fileName;
+      this.pages = data.pages;
+      this.loadedImages = data.imageMap;
+      this.initPages();
+    });
   }
 
 
@@ -93,6 +99,7 @@ export class SketchDocument {
   }
 
   selectPage(pageName) {
+    console.log("Select Map!");
     if (this.pageSVGMap[pageName]) {
       this.svg = this.pageSVGMap[pageName];
     } else {
@@ -122,7 +129,7 @@ export class SketchDocument {
 
     data.$$shapeGroup = data._class === 'shapeGroup';
     data.$$bitmap = data._class === 'bitmap';
-    data.$$text = data._class === 'bitmap';
+    data.$$text = data._class === 'text';
     this.symbolMap[data.name] = data;
 
 
@@ -230,6 +237,13 @@ export class SketchDocument {
 
       }
     }
+
+
+    if (data.style && data.style.shadows && data.style.shadows.length > 0) {
+      data.$$hasFilter = true;
+    }
+
+
 
     if (data._class === 'bitmap') {
       data.$$imageData = this.getImageData(data);
@@ -343,10 +357,16 @@ export class SketchDocument {
 
     }
 
+
+
     if (data.layers) {
+
+
+
+
       let hasClippingMask = false;
       let mId: any;
-      data.layers.forEach((layer, index) => {
+      data.layers.forEach((layer) => {
         let newId = this.generateUUID();
         this.analyzeInitialLayer(layer, data, newId, mId, rootSymbolId);
         if (layer.hasClippingMask) {
@@ -357,6 +377,16 @@ export class SketchDocument {
 
       });
     }
+
+
+    const hasMasks: boolean = data.masks.length > 0;
+    const hasLinearGradients: boolean = data.linearGradients && data.linearGradients.length > 0;
+    const hasRadialGradients: boolean = data.radialGradients && data.radialGradients.length > 0;
+    const hasDrawingLayers: boolean = data.layers && data.layers.filter((l) => {
+        return l.$$drawAsCircle || l.$$drawAsRect || l.$$drawAsLine || l.$$drawAsPath;
+      }).length > 0;
+
+    data.hasDefs = hasMasks || hasLinearGradients || hasRadialGradients || hasDrawingLayers;
 
     return data.$$id;
 

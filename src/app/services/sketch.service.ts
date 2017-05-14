@@ -6,9 +6,7 @@ import {SketchDocument} from './sketch.document';
 @Injectable()
 export class SketchService {
 
-  rootLayers: Array<any> = [];
   highlightedLayer: any;
-  sketchLoader: SketchLoader;
 
   public selectedSymbolId: string;
 
@@ -24,44 +22,38 @@ export class SketchService {
 
   public loadFile() {
 
-    this.sketchLoader = new SketchLoader();
+    const sketchLoader = new SketchLoader();
+
 
     /*
-     this.sketchLoader.onFileChanged.subscribe((data:any)=>{
-     data.pages.forEach((page, pageNum) => {
-     //page.data.$$level = 0;
-     this.findSymbolMasters(page.data);
-     });
+    this.sketchLoader.load("assets/multiple.sketch").then((data: any) => {
 
-     data.pages.forEach((page, pageNum) => {
-     //page.data.$$level = 0;
-     this.fillSymbolInstances(page.data);
-     });
+      const doc: SketchDocument = new SketchDocument(data);
+      this.documents.push(doc);
+      this.selectedDocument = doc;
+      this.selectedDocument.getSymbolDoc('testid');
 
-     data.pages.forEach((page, pageNum) => {
-     page.data.$$level = 0;
-     this.analyzePage(page.data, 1, null, pageNum + '', '');
-     });
-     this.pages = data.pages;
-     this.loadedImages = data.imageMap;
-     this.zone.run(() => {
-     this.selectPage(this.pages[0]);
-     });
-     });
-     */
+    });
+    */
 
 
-    this.sketchLoader.openDialog()
+    const doc: SketchDocument = new SketchDocument();
+
+
+    sketchLoader.openDialog()
       .then((data: any) => {
-
-        const doc: SketchDocument = new SketchDocument(data);
+        doc.setData(data);
         this.documents.push(doc);
         this.selectedDocument = doc;
-
-
-        this.selectedDocument.getSymbolDoc('testid');
-
       });
+
+    sketchLoader.onFileChanged.subscribe((data:any)=>{
+      this.zone.run(()=>{
+        doc.setData(data);
+      });
+
+    });
+
   }
 
 }

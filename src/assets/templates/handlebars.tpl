@@ -1,5 +1,30 @@
+{{#if hasDefs}}
 <!-- START DEFS -->
 <defs>
+  {{#each style.shadows}}
+
+  <filter id="filter-{{../$$id}}" height="140%" width="140%">
+    <!--
+    <feGaussianBlur in="SourceAlpha" stdDeviation="{{spread}}"/> <!-- stdDeviation is how much to blur -->
+    <feOffset dx="{{offsetX}}" dy="{{offsetY}}" result="offsetblur"/> <!-- how much to offset -->
+    <feMerge>
+      <feMergeNode/> <!-- this contains the offset blurred image -->
+      <feMergeNode in="SourceGraphic"/> <!-- this contains the element that the filter is applied to -->
+    </feMerge>
+    -->
+    <feMorphology radius="2.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+                <feOffset dx="{{offsetX}}" dy="{{offsetY}}" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
+                <feGaussianBlur stdDeviation="{{spread}}" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+                <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+
+                <feMerge>
+                      <feMergeNode/> <!-- this contains the offset blurred image -->
+                      <feMergeNode in="SourceGraphic"/> <!-- this contains the element that the filter is applied to -->
+                    </feMerge>
+  </filter>
+
+  {{/each}}
+
   {{#each masks}}
     <mask id="mask{{$$id}}">
     {{#each layers}}
@@ -47,6 +72,7 @@
   {{/if}}
 </defs>
 <!-- END DEFS -->
+{{/if}}
 
 <!-- START USE -->
 {{#if $$shapeGroup}}
@@ -54,6 +80,7 @@
     {{#each layers}}
       <use
       mask="url(#mask{{../$$maskId}})"
+      {{#if ../$$hasFilter}}style="filter:url(#filter-{{../$$id}})"{{/if}}
       stroke="{{../$$strokeColor}}"
       stroke-width="{{../$$strokeWidth}}"
       fill="{{../$$fill}}"
