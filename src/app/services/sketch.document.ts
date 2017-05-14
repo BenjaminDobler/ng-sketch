@@ -133,6 +133,8 @@ export class SketchDocument {
     this.symbolMap[data.name] = data;
 
 
+
+
     if (parent) {
       data.parent = parent.$$id;
     }
