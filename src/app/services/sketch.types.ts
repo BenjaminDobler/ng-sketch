@@ -1,77 +1,76 @@
 /*
-export interface string = string // with string v4 format
+ export interface string = string // with string v4 format
 
-export interface SketchPositionString = string // '{0.5; 0.67135115527602085}'
+ export interface SketchPositionString = string // '{0.5; 0.67135115527602085}'
 
-export interface SketchNestedPositionString = string // '{{0; 0}; {75.5; 15}}'
+ export interface SketchNestedPositionString = string // '{{0; 0}; {75.5; 15}}'
 
-export interface Base64String = string
+ export interface Base64String = string
 
-export interface FilePathString = string
-*/
-
-
-export const SKETCH_LAYER_TYPE_TEXT:string = 'text';
+ export interface FilePathString = string
+ */
 
 
+export const SKETCH_LAYER_TYPE_TEXT: string = 'text';
 
-interface SketchImageCollection  {
-  _class: string;//'imageCollection';
+
+interface SketchImageCollection {
+  _class: string;// 'imageCollection';
   images: any; // TODO
 }
 
-export interface SketchColor  {
-  _class: string; //'color';
+export interface SketchColor {
+  _class: string; // 'color';
   alpha: number;
   blue: number;
   green: number;
   red: number;
 }
 
-export interface SketchBorder  {
+export interface SketchBorder {
   _class: string; //'border';
   isEnabled: boolean;
   color: SketchColor;
   fillType: number;
   position: number;
-  thickness: number
+  thickness: number;
 }
 
-export interface SketchGradientStop  {
-  _class: string; //'gradientStop';
+export interface SketchGradientStop {
+  _class: string; // 'gradientStop';
   color: SketchColor;
-  position: number
+  position: number;
 }
 
-export interface SketchGradient  {
-  _class: string; //gradient';
+export interface SketchGradient {
+  _class: string; // gradient';
   elipseLength: number;
   from: string;
   gradientType: number;
   shouldSmoothenOpacity: boolean;
   stops: [SketchGradientStop];
-  to: string
+  to: string;
 }
 
-export interface SketchGraphicsContextSettings  {
-  _class: string; //'graphicsContextSettings';
+export interface SketchGraphicsContextSettings {
+  _class: string; // 'graphicsContextSettings';
   blendMode: number;
-  opacity: number
+  opacity: number;
 }
 
-export interface SketchInnerShadow  {
-  _class: string; //'innerShadow';
+export interface SketchInnerShadow {
+  _class: string; // 'innerShadow';
   isEnabled: boolean;
   blurRadius: number;
   color: SketchColor;
   contextSettings: SketchGraphicsContextSettings;
-  offsetX: 0;
-  offsetY: 1;
-  spread: 0
+  offsetX: number;
+  offsetY: number;
+  spread: number;
 }
 
-export interface SketchFill  {
-  _class: string; //'fill';
+export interface SketchFill {
+  _class: string; // 'fill';
   isEnabled: boolean;
   color: SketchColor;
   fillType: number;
@@ -79,43 +78,42 @@ export interface SketchFill  {
   noiseIndex: number;
   noiseIntensity: number;
   patternFillType: number;
-  patternTileScale: number
+  patternTileScale: number;
 }
 
-export interface SketchShadow  {
-  _class: string; //'shadow';
+export interface SketchShadow {
+  _class: string; // 'shadow';
   isEnabled: boolean;
   blurRadius: number;
   color: SketchColor;
   contextSettings: SketchGraphicsContextSettings;
   offsetX: number;
   offsetY: number;
-  spread: number
+  spread: number;
 }
 
-export interface SketchBlur  {
-  _class: string; //'blur';
+export interface SketchBlur {
+  _class: string; // 'blur';
   isEnabled: boolean;
-  center: SketchPositionString;
+  center: any; // SketchPositionString;
   motionAngle: number;
   radius: number;
-  export interface: number
 }
 
-export interface SketchEncodedAttributes  {
+export interface SketchEncodedAttributes {
   NSKern: number;
   MSAttributedStringFontAttribute: {
-    _archive: Base64String;
+    _archive: string; // Base64String;
   };
   NSParagraphStyle: {
-    _archive: Base64String
+    _archive: string; // Base64String
   };
   NSColor: {
-    _archive: Base64String
+    _archive: string; //Base64String
   }
 }
 
-export interface SketchRect  {
+export interface SketchRect {
   _class: string; //rect';
   constrainProportions: boolean;
   height: number;
@@ -124,127 +122,127 @@ export interface SketchRect  {
   y: number
 }
 
-export interface SketchTextStyle  {
+export interface SketchTextStyle {
   _class: string; //textStyle';
   encodedAttributes: SketchEncodedAttributes
 }
 
-export interface SketchBorderOptions  {
+export interface SketchBorderOptions {
   _class: string; //borderOptions';
   do_objectID: string;
   isEnabled: boolean;
-  dashPattern: []; // TODO;
+  dashPattern: Array<any>; // TODO;
   lineCapStyle: number;
-  lineJoinStyle: number
+  lineJoinStyle: number;
 }
 
-export interface SketchColorControls  {
+export interface SketchColorControls {
   _class: string; //colorControls';
   isEnabled: boolean;
   brightness: number;
   contrast: number;
   hue: number;
-  saturation: number
+  saturation: number;
 }
 
-export interface SketchStyle  {
-  _class: string; //style';
-  blur: ?[SketchBlur];
-  borders: ?[SketchBorder];
-  borderOptions: ?SketchBorderOptions;
-  contextSettings: ?SketchGraphicsContextSettings;
-  colorControls: ?SketchColorControls;
+export interface SketchStyle {
+  _class: string; // style';
+  blur?: SketchBlur;
+  borders?: SketchBorder;
+  borderOptions?: SketchBorderOptions;
+  contextSettings?: SketchGraphicsContextSettings;
+  colorControls?: SketchColorControls;
   endDecorationType: number;
-  fills: [SketchFill];
-  innerShadows: [SketchInnerShadow];
+  fills: Array<SketchFill>;
+  innerShadows: Array<SketchInnerShadow>;
   miterLimit: number;
-  shadows: ?[SketchShadow];
+  shadows?: Array<SketchShadow>;
   sharedObjectID: string;
   startDecorationType: number;
-  textStyle: ?SketchTextStyle
+  textStyle?: SketchTextStyle;
 }
 
-export interface SketchSharedStyle  {
-  _class: string; //sharedStyle';
+export interface SketchSharedStyle {
+  _class: string; // sharedStyle';
   do_objectID: string;
   name: string;
-  value: SketchStyle
+  value: SketchStyle;
 }
 
-export interface SketchExportFormat  {
-  _class: string; //exportFormat';
+export interface SketchExportFormat {
+  _class: string; // exportFormat';
   absoluteSize: number;
   fileFormat: string;
   name: string;
   namingScheme: number;
   scale: number;
-  visibleScaleType: number
+  visibleScaleType: number;
 }
 
-export interface SketchExportOptions  {
-  _class: string; //exportOptions';
+export interface SketchExportOptions {
+  _class: string; // exportOptions';
   exportFormats: [SketchExportFormat];
-  includedLayerIds: []; // TODO
+  includedLayerIds: Array<any>; // TODO
   layerOptions: number;
-  shouldTrim: boolean
+  shouldTrim: boolean;
 }
 
-export interface SketchSharedStyleContainer  {
-  _class: string; //sharedStyleContainer';
-  objects: [SketchSharedStyle]
+export interface SketchSharedStyleContainer {
+  _class: string; // sharedStyleContainer';
+  objects: Array<SketchSharedStyle>;
 }
 
-export interface SketchSymbolContainer  {
-  _class: string; //symbolContainer';
-  objects: [] // TODO
+export interface SketchSymbolContainer {
+  _class: string; // symbolContainer';
+  objects: Array<any>; // TODO
 }
 
 export interface SketchSharedTextStyleContainer {
   _class: string; //sharedTextStyleContainer';
-    objects: [SketchSharedStyle]
+  objects: Array<SketchSharedStyle>;
 }
 
-export interface SketchAssetsCollection  {
+export interface SketchAssetsCollection {
   _class: string; //assetCollection';
-  colors: []; // TODO
-  gradients: []; // TODO
+  colors: Array<any>; // TODO
+  gradients: Array<any>; // TODO
   imageCollection: SketchImageCollection;
-  images: [] // TODO
+  images: Array<any> // TODO
 }
 
-export interface SketchMSJSONFileReference  {
+export interface SketchMSJSONFileReference {
   _class: string; //MSJSONFileReference';
   _ref_class: string; //MSImmutablePage' | 'MSImageData';
-  _red: FilePathString
+  _red: string; //FilePathString
 }
 
-export interface SketchMSAttributedString  {
+export interface SketchMSAttributedString {
   _class: string; //MSAttributedString';
   archivedAttributedString: {
-    _archive: Base64String
+    _archive: string; //Base64String
   }
 }
 
-export interface SketchCurvePoint  {
+export interface SketchCurvePoint {
   _class: string; //curvePoint';
   do_objectID: string;
   cornerRadius: number;
-  curveFrom: string;//SketchPositionString;
+  curveFrom: string;// SketchPositionString;
   curveMode: number;
-  curveTo: string;//SketchPositionString;
+  curveTo: string;// SketchPositionString;
   hasCurveFrom: boolean;
   hasCurveTo: boolean;
-  point: string;//SketchPositionString
+  point: string;// SketchPositionString
 }
 
-export interface SketchRulerData  {
-  _class: string; //rulerData';
+export interface SketchRulerData {
+  _class: string; // rulerData';
   base: number;
-  guides: [] // TODO
+  guides: Array<any>; // TODO
 }
 
-export interface SketchText  {
-  _class: string; //text';
+export interface SketchText {
+  _class: string; // text';
   do_objectID: string;
   exportOptions: SketchExportOptions;
   frame: SketchRect;
@@ -263,13 +261,13 @@ export interface SketchText  {
   attributedString: SketchMSAttributedString;
   automaticallyDrawOnUnderlyingPath: boolean;
   dontSynchroniseWithSymbol: boolean;
-  glyphBounds: string;//SketchNestedPositionString;
+  glyphBounds: string; // SketchNestedPositionString;
   heightIsClipped: boolean;
   lineSpacingBehaviour: number;
-  textBehaviour: number
+  textBehaviour: number;
 }
 
-export interface SketchShapeGroup  {
+export interface SketchShapeGroup {
   _class: string; //shapeGroup';
   do_objectID: string;
   exportOptions: SketchExportOptions;
@@ -287,19 +285,19 @@ export interface SketchShapeGroup  {
   shouldBreakMaskChain: boolean;
   style: SketchStyle;
   hasClickThrough: boolean;
-  layers: [SketchLayer];
+  layers: Array<any>; // [SketchLayer];
   clippingMaskMode: number;
   hasClippingMask: boolean;
   windingRule: number
 }
 
-export interface SketchPath  {
-  _class: string; //path';
+export interface SketchPath {
+  _class: string; // path';
   isClosed: boolean;
-  points: [SketchCurvePoint]
+  points: Array<SketchCurvePoint>;
 }
 
-export interface SketchShapePath  {
+export interface SketchShapePath {
   _class: string; //shapePath';
   do_objectID: string;
   exportOptions: SketchExportOptions;
@@ -319,7 +317,7 @@ export interface SketchShapePath  {
   path: SketchPath
 }
 
-export interface SketchArtboard  {
+export interface SketchArtboard {
   _class: string; //artboard';
   do_objectID: string;
   exportOptions: SketchExportOptions;
@@ -336,7 +334,7 @@ export interface SketchArtboard  {
   shouldBreakMaskChain: boolean;
   style: SketchStyle;
   hasClickThrough: boolean;
-  layers: [SketchLayer];
+  layers: Array<any>; // [SketchLayer];
   backgroundColor: SketchColor;
   hasBackgroundColor: boolean;
   horizontalRulerData: SketchRulerData;
@@ -345,7 +343,7 @@ export interface SketchArtboard  {
   verticalRulerData: SketchRulerData
 }
 
-export interface SketchBitmap  {
+export interface SketchBitmap {
   _class: string; //bitmap';
   do_objectID: string;
   exportOptions: SketchExportOptions;
@@ -368,7 +366,7 @@ export interface SketchBitmap  {
   nineSliceScale: string;//SketchPositionString
 }
 
-export interface SketchSymbolInstance  {
+export interface SketchSymbolInstance {
   _class: string; //symbolInstance';
   do_objectID: string;
   exportOptions: SketchExportOptions;
@@ -394,7 +392,7 @@ export interface SketchSymbolInstance  {
   overrides: any;
 }
 
-export interface SketchGroup  {
+export interface SketchGroup {
   _class: string; //group';
   do_objectID: string;
   exportOptions: SketchExportOptions;
@@ -411,11 +409,11 @@ export interface SketchGroup  {
   rotation: number;
   shouldBreakMaskChain: boolean;
   hasClickThrough: boolean;
-  layers: [SketchLayer]
+  layers: Array<any>; //[SketchLayer]
 }
 
-export interface SketchRectangle  {
-  _class: string; //rectangle';
+export interface SketchRectangle {
+  _class: string; // rectangle';
   do_objectID: string;
   exportOptions: SketchExportOptions;
   frame: SketchRect;
@@ -436,8 +434,8 @@ export interface SketchRectangle  {
   hasConvertedToNewRoundCorners: boolean
 }
 
-export interface SketchOval  {
-  _class: string; //oval';
+export interface SketchOval {
+  _class: string; // oval';
   do_objectID: string;
   exportOptions: SketchExportOptions;
   frame: SketchRect;
@@ -456,8 +454,11 @@ export interface SketchOval  {
   path: SketchPath
 }
 
-export interface SketchLayer =
-| SketchText
+/*
+export interface SketchLayer
+=
+|
+SketchText
 | SketchShapeGroup
 | SketchShapePath
 | SketchBitmap
@@ -466,12 +467,12 @@ export interface SketchLayer =
 | SketchGroup
 | SketchRectangle
 | SketchOval
-
-export interface SketchSymbolMaster  {
+*/
+export interface SketchSymbolMaster {
   backgroundColor: SketchColor;
   _class: string; //symbolMaster';
   do_objectID: string;
-  exportOptions: [SketchExportOptions];
+  exportOptions: Array<SketchExportOptions>;
   frame: SketchRect;
   hasBackgroundColor: boolean;
   hasClickThrough: boolean;
@@ -484,7 +485,7 @@ export interface SketchSymbolMaster  {
   isLocked: boolean;
   isVisible: boolean;
   layerListExpandedType: number;
-  layers: [SketchLayer];
+  layers: any; // [SketchLayer];
   name: string;
   nameIsFixed: boolean;
   resizingType: number;
@@ -496,22 +497,22 @@ export interface SketchSymbolMaster  {
 }
 
 // document.json
-export interface SketchDocument  {
-  _class: string; //document';
+export interface SketchDocument {
+  _class: string; // document';
   do_objectID: string;
   assets: SketchAssetsCollection;
   currentPageIndex: number;
   enableLayerInteraction: boolean;
   enableSliceInteraction: boolean;
-  foreignSymbols: []; // TODO
+  foreignSymbols: Array<any>; // TODO
   layerStyles: SketchSharedStyleContainer;
   layerSymbols: SketchSymbolContainer;
   layerTextStyles: SketchSharedTextStyleContainer;
-  pages: [SketchMSJSONFileReference]
+  pages: Array<SketchMSJSONFileReference>;
 }
 
 // pages/*.json
-export interface SketchPage  {
+export interface SketchPage {
   _class: string; //page';
   do_objectID: string;
   exportOptions: SketchExportOptions;
@@ -524,7 +525,7 @@ export interface SketchPage  {
   isLocked: boolean;
   isVisible: boolean;
   layerListExpandedType: number;
-  layers: [SketchSymbolMaster];
+  layers: Array<SketchSymbolMaster>;
   name: string;
   nameIsFixed: boolean;
   resizingType: number;
@@ -535,7 +536,7 @@ export interface SketchPage  {
 }
 
 // meta.json
-export interface SketchMeta  {
+export interface SketchMeta {
   commit: string;
   appVersion: string;
   build: number;
@@ -545,25 +546,25 @@ export interface SketchMeta  {
   };
   fonts: [string]; // Font names
   version: number;
-  saveHistory: [ string ]; // 'BETA.38916'
+  saveHistory: [string]; // 'BETA.38916'
   autosaved: number;
-  variant: string // 'BETA'
+  variant: string; // 'BETA'
 }
 
 /*
-export interface SketchDocumentId = string
+ export interface SketchDocumentId = string
 
-export interface SketchPageId = string
+ export interface SketchPageId = string
 
-// user.json
-export interface SketchUser  {
-  [key: SketchPageId]: {
-    scrollOrigin: SketchPositionString;
-    zoomValue: number
-  };
-  [key: SketchDocumentId]: {
-    pageListHeight: number;
-    cloudShare: any // TODO
-  }
-}
+ // user.json
+ export interface SketchUser  {
+ [key: SketchPageId]: {
+ scrollOrigin: SketchPositionString;
+ zoomValue: number
+ };
+ [key: SketchDocumentId]: {
+ pageListHeight: number;
+ cloudShare: any // TODO
+ }
+ }
 */
