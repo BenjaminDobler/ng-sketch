@@ -4,6 +4,7 @@
 
 
 import {NSArchiveParser} from './NSArchiveParser';
+import {SketchLoaderResult} from "./sketch.loader";
 
 //import Handlebars;
 
@@ -49,10 +50,9 @@ export class SketchDocument {
   }
 
 
-  setData(data:any) {
+  setData(data:SketchLoaderResult) {
     this.pageSVGMap = {};
     this.loadTemplate(() => {
-      console.log("========= Set Data")
       this.filePath = data.filePath;
       this.fileName = data.fileName;
       this.pages = data.pages;

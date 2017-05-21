@@ -1,7 +1,24 @@
-import {EventEmitter} from "@angular/core";
+import {EventEmitter} from '@angular/core';
 /**
  * Created by benjamindobler on 11.04.17.
  */
+
+
+export interface SketchLoaderPage {
+  data: any;
+  file: string;
+}
+
+
+export interface SketchLoaderResult {
+  fileName: string;
+  filePath: string;
+  imageKeys: Array<string>;
+  imageMap: Array<any>;
+  pageKeys: Array<string>;
+  pageMap: Array<any>;
+  pages: Array<SketchLoaderPage>;
+}
 
 
 export class SketchLoader {
@@ -14,8 +31,8 @@ export class SketchLoader {
   private imageMap: any = {};
   private pageMap: any = {};
   public onFileChanged: EventEmitter<any> = new EventEmitter<any>();
-  public filePath:string;
-  public path:any;
+  public filePath: string;
+  public path: any;
 
 
   constructor() {
@@ -33,31 +50,19 @@ export class SketchLoader {
       this.filePath = filePath;
 
       this.fs.readFile(filePath, (err, data) => {
-
         if (err) {
-          throw err
+          throw err;
         }
-        ;
         this.readFile(data).then((data) => {
-          // resolve(data);
           this.onFileChanged.emit(data);
         });
       });
-      if (filename) {
-        //file = fs.readFileSync(filePath);
-        //console.log('File content at : ' + new Date() + ' is \n' + file);
-        //this.watchFile(filePath);
-
-      }
-      else {
-        console.log('filename not provided')
-      }
     });
   }
 
 
-  openDialog() {
-    let promise = new Promise((resolve, reject) => {
+  openDialog(): Promise<SketchLoaderResult> {
+    const promise = new Promise((resolve, reject) => {
       this.electron.remote.dialog.showOpenDialog({title: 'Select Skecth file'}, (file) => {
         this.watchFile(file[0]);
         this.fs.readFile(file[0], (err, data) => {
@@ -76,29 +81,19 @@ export class SketchLoader {
     return promise;
   }
 
-  load(url:string) {
-    return new Promise((resolve, reject)=>{
-      console.log("Load")
-      var oReq = new XMLHttpRequest();
-      oReq.open("GET", url, true);
-      oReq.responseType = "arraybuffer";
+  load(url: string) {
+    return new Promise((resolve, reject) => {
+      const oReq = new XMLHttpRequest();
+      oReq.open('GET', url, true);
+      oReq.responseType = 'arraybuffer';
 
-      oReq.onload =  (oEvent)=> {
-
-        var arrayBuffer = oReq.response; // Note: not oReq.responseText
+      oReq.onload = (oEvent) => {
+        const arrayBuffer = oReq.response; // Note: not oReq.responseText
         this.filePath = url;
-        console.log("Loaded ", arrayBuffer);
-        this.readFile(arrayBuffer).then((data)=>{
+        console.log('Loaded ', arrayBuffer);
+        this.readFile(arrayBuffer).then((data) => {
           resolve(data);
         });
-        /*
-         if (arrayBuffer) {
-         var byteArray = new Uint8Array(arrayBuffer);
-         for (var i = 0; i < byteArray.byteLength; i++) {
-         // do something with each byte in the array
-         }
-         }
-         */
       };
       oReq.send(null);
     });
@@ -120,13 +115,11 @@ export class SketchLoader {
       resultData.imageKeys = images;
       resultData.filePath = this.filePath;
       resultData.fileName = this.path.basename(this.filePath);
-      console.log("Pages ", pages);
 
+      const pagePromises = pages.map(x => this.zip.file(x).async('string'));
+      const imagePromises = images.map(x => this.zip.file(x).async('base64'));
 
-      let pagePromises = pages.map(x => this.zip.file(x).async('string'));
-      let imagePromises = images.map(x => this.zip.file(x).async('base64'));
-
-      let allImages = Promise.all(imagePromises)
+      const allImages = Promise.all(imagePromises)
         .then((data) => {
           images.forEach((key: string, index: number) => {
             this.imageMap[key] = 'data:image/jpeg;base64,' + data[index];
@@ -147,8 +140,6 @@ export class SketchLoader {
             file: pageKey
           };
         });
-
-        console.log("Result Data ", resultData);
 
         return resultData;
 

@@ -1,6 +1,6 @@
 import {Injectable, NgZone} from '@angular/core';
 import {NSArchiveParser} from './NSArchiveParser';
-import {SketchLoader} from './sketch.loader';
+import {SketchLoader, SketchLoaderResult} from './sketch.loader';
 import {SketchDocument} from './sketch.document';
 
 @Injectable()
@@ -41,7 +41,7 @@ export class SketchService {
 
 
     sketchLoader.openDialog()
-      .then((data: any) => {
+      .then((data: SketchLoaderResult) => {
         doc.setData(data);
         this.documents.push(doc);
         this.selectedDocument = doc;
