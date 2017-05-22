@@ -99,7 +99,6 @@ export class SketchDocument {
   }
 
   selectPage(pageName) {
-    console.log("Select Map!");
     if (this.pageSVGMap[pageName]) {
       this.svg = this.pageSVGMap[pageName];
     } else {
@@ -267,6 +266,7 @@ export class SketchDocument {
 
         if (l.booleanOperation != -1 && currentBooleanOperationTarget) {
           currentBooleanOperationTarget.booleanOperationObjects.push(l);
+          l.$$noDraw = true;
         } else {
           l.isBooleanOperationTarget = true;
           currentBooleanOperationTarget = l;
@@ -276,8 +276,11 @@ export class SketchDocument {
         l.$$isRect = this.isRect(l.path, data);
         l.$$isLine = this.isLine(l.path);
         l.$$isCircle = this.isCircle(l.path, data);
-
-        console.log("IS CIRCLE ? ", l.$$isCircle);
+        if (l.booleanOperation) {
+          l.$$isCircle = false;
+          l.$$isRect = false;
+          l.$$isLine = false;
+        }
 
       });
 
@@ -515,12 +518,15 @@ export class SketchDocument {
           shape = new paper.Path(this.getPath(b, symbolId));
         }
 
-
+        console.log("Boolean operation ", b.booleanOperation);
         if (b.booleanOperation === 2) {
           paperPath = paperPath.intersect(shape);
         } else if (b.booleanOperation === 3) {
           paperPath = paperPath.exclude(shape);
-        } else {
+        } else if(b.booleanOperation === 0) {
+          console.log("UNITE!");
+          paperPath = paperPath.unite(shape, {insert: false});
+        }else {
           paperPath = paperPath.subtract(shape);
         }
       });
@@ -792,7 +798,6 @@ export class SketchDocument {
     let s4 = distSq(p4, p1);
 
     let allSidesSame: boolean = s1 === s2 && s2 === s3 && s3 === s4;
-    console.log("All Sides Same ", allSidesSame);
     // If lengths if (p1, p2) and (p1, p3) are same, then
     // following conditions must met to form a square.
     // 1) Square of length of (p1, p4) is same as twice

@@ -18,6 +18,8 @@ export interface SketchLoaderResult {
   pageKeys: Array<string>;
   pageMap: Array<any>;
   pages: Array<SketchLoaderPage>;
+  document:any;
+  user:any;
 }
 
 
@@ -111,10 +113,17 @@ export class SketchLoader {
 
       const pages: Array<string> = Object.keys(zip.files).filter(x => x.startsWith('pages'));
       const images: Array<string> = Object.keys(zip.files).filter(x => x.endsWith('png'));
+      const documentKey: string = Object.keys(zip.files).filter(x => x === 'document.json').pop();
+      const documentPromise = this.zip.file(documentKey).async('string').then(x => resultData.document = JSON.parse(x));
+      const userKey:string = Object.keys(zip.files).filter(x => x === 'user.json').pop();
+      const userPromise = this.zip.file(userKey).async('string').then(x => resultData.user = JSON.parse(x));
+      const otherPromises = Promise.all([userPromise, documentPromise]);
+
       resultData.pageKeys = pages;
       resultData.imageKeys = images;
       resultData.filePath = this.filePath;
       resultData.fileName = this.path.basename(this.filePath);
+
 
       const pagePromises = pages.map(x => this.zip.file(x).async('string'));
       const imagePromises = images.map(x => this.zip.file(x).async('base64'));
@@ -127,7 +136,7 @@ export class SketchLoader {
           resultData.imageMap = this.imageMap;
         });
 
-      return allImages.then(x => Promise.all(pagePromises)).then((pageData) => {
+      return otherPromises.then(x => allImages).then(x => Promise.all(pagePromises)).then((pageData) => {
         pages.forEach((key: string, index: number) => {
           this.pageMap[key] = JSON.parse(pageData[index]);
           resultData.pageMap = this.pageMap;
@@ -141,6 +150,7 @@ export class SketchLoader {
           };
         });
 
+        console.log("Result Data ", resultData);
         return resultData;
 
       });

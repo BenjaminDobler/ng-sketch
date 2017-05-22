@@ -78,6 +78,7 @@
 {{#if $$shapeGroup}}
   <g>
     {{#each layers}}
+    {{#unless $$noDraw}}
       <use
       mask="url(#mask{{../$$maskId}})"
       {{#if ../$$hasFilter}}style="filter:url(#filter-{{../$$id}})"{{/if}}
@@ -87,6 +88,7 @@
       fill-rule="evenodd"
       fill-opacity="{{../$$opacity}}"
       xlink:href="#{{$$id}}"></use>
+      {{/unless}}
     {{/each}}
   </g>
 {{/if}}
