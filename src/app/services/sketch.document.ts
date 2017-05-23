@@ -265,6 +265,7 @@ export class SketchDocument {
         l.parent = data.$$id;
 
         if (l.booleanOperation != -1 && currentBooleanOperationTarget) {
+          l.$$transform = this.getTransformation(l, rootSymbolId);
           currentBooleanOperationTarget.booleanOperationObjects.push(l);
           l.$$noDraw = true;
         } else {
@@ -273,10 +274,10 @@ export class SketchDocument {
           currentBooleanOperationTarget.booleanOperationObjects = [];
         }
 
-        l.$$isRect = this.isRect(l.path, data);
+        l.$$isRect = this.isRect(l, data);
         l.$$isLine = this.isLine(l.path);
         l.$$isCircle = this.isCircle(l.path, data);
-        if (l.booleanOperation) {
+        if (l.booleanOperation>=0) {
           l.$$isCircle = false;
           l.$$isRect = false;
           l.$$isLine = false;
@@ -331,6 +332,9 @@ export class SketchDocument {
         l.$$transform = this.getTransformation(l, rootSymbolId);
 
 
+        console.log("Boolean Operations ", l.booleanOperation);
+        console.log("Is Rect= ", l.$$isRect);
+
         if (l.$$isRect && l.booleanOperation <= 0) {
           l.$$drawAsRect = true;
         }
@@ -351,7 +355,11 @@ export class SketchDocument {
           l.$$drawAsPath = true;
           l.$$drawAsRect = false;
           l.$$drawAsLine = false;
+          l.$$drawAsCircle = false;
         }
+
+
+        console.log("Draw as " + l.name+" :", l.$$drawAsPath, l.$$drawAsRect, l.$$drawAsCircle, l.$$drawAsLine, "No Draw " + l.$$noDraw);
 
 
       });
@@ -447,14 +455,9 @@ export class SketchDocument {
     }
   }
 
-  /*
-   public selectPage(page) {
-   this.page = page;
-   this.rootLayers = [page.data];
-   }
-   */
 
   getPath(layer, symbolId) {
+    console.log("Get Path ", layer.name);
     const points: Array<any> = [];
     layer.path.points.forEach((x) => {
       points.push({
@@ -497,6 +500,8 @@ export class SketchDocument {
       w.paper.setup(canvas);
       const paper: any = w.paper;
       let paperPath = new paper.Path(path);
+      paperPath.rotate(layer.rotation);
+      console.log("Path ", path)
 
 
       let operations = layer.booleanOperationObjects.map(x => x.booleanOperation);
@@ -514,9 +519,15 @@ export class SketchDocument {
           rect.width = b.frame.width;
           rect.height = b.frame.height;
           shape = paper.Path.Rectangle(rect.x, rect.y, rect.width, rect.height);
+
+          //shape.rotate(0,141, 113.16666666666663);
+          //console.log("BBBBB", b.$$transform);
+          console.log(b);
         } else {
           shape = new paper.Path(this.getPath(b, symbolId));
         }
+
+        console.log("Shape ", shape);
 
         console.log("Boolean operation ", b.booleanOperation);
         if (b.booleanOperation === 2) {
@@ -524,7 +535,7 @@ export class SketchDocument {
         } else if (b.booleanOperation === 3) {
           paperPath = paperPath.exclude(shape);
         } else if(b.booleanOperation === 0) {
-          console.log("UNITE!");
+          console.log("UNITE! ", layer.name);
           paperPath = paperPath.unite(shape, {insert: false});
         }else {
           paperPath = paperPath.subtract(shape);
@@ -536,14 +547,15 @@ export class SketchDocument {
     return path;
   }
 
-  isRect(data, frame): boolean {
-    if (data.points.length !== 4) {
+  isRect(layer, frame): boolean {
+    const path = layer.path;
+    if (path.points.length !== 4) {
       return false;
     }
-    const rectPoints = data.points.map(x => this.toPoint(x.point, frame));
+    const rectPoints = path.points.map(x => this.toPoint(x.point, frame));
     if (rectPoints.length === 4) {
       const isRect: boolean = this.IsRectangleAnyOrder(rectPoints[0], rectPoints[1], rectPoints[2], rectPoints[3]);
-      const hasCurveTo: boolean = data.points.filter(x => x.hasCurveTo === true).length > 0;
+      const hasCurveTo: boolean = path.points.filter(x => x.hasCurveTo === true).length > 0;
       return isRect && !hasCurveTo;
     }
     return false;
