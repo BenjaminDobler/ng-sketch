@@ -105,7 +105,7 @@
   {{/unless}}
   {{#if $$hasTextLines}}
     {{#each $$textLines}}
-      <tspan x="{{x}}" y="{{y}}">{{text}}</tspan>
+      <tspan x="{{x}}" dy="{{y}}">{{text}}</tspan>
     {{/each}}
   {{/if}}
 </text>

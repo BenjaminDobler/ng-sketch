@@ -204,10 +204,16 @@ export class SketchDocument {
       data.$$transform = this.getTransformation(data, rootSymbolId);
 
       let lines: Array<any> = data.$$text.split('\n');
+
       lines = lines.map((l: string, index: number) => {
+        let lHeight = data.$$lineHeight || '1em';
+        let y:any = '1.4em';
+        if (data.$$lineHeight) {
+          y = index * data.$$lineHeight;
+        }
         return {
           text: l,
-          y: index * data.$$lineHeight,
+          y: y,
           x: p.x
         };
       });
