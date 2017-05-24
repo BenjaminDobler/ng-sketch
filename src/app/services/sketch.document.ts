@@ -40,7 +40,7 @@ export class SketchDocument {
 
     if (sourceData) {
 
-     this.setData(sourceData);
+      this.setData(sourceData);
 
     } else {
       this.loadTemplate();
@@ -50,7 +50,7 @@ export class SketchDocument {
   }
 
 
-  setData(data:SketchLoaderResult) {
+  setData(data: SketchLoaderResult) {
     this.pageSVGMap = {};
     this.loadTemplate(() => {
       this.filePath = data.filePath;
@@ -113,6 +113,16 @@ export class SketchDocument {
   private idCount: number = 0;
 
 
+  parseArchive(base64String: string) {
+    const w: any = window;
+    const b: any = w.Buffer;
+    const buf2 = b.from(base64String, 'base64');
+    const obj = this.bplistParser.parseBuffer(buf2);
+    const parser: NSArchiveParser = new NSArchiveParser();
+    return parser.parse(obj);
+  }
+
+
   public analyzeInitialLayer(data: any, parent: any, id: any, maskId: any, rootSymbolId: string = '') {
     data.$$id = id;//this.generateUUID();
     data.$$transform = this.getTransformation(data, rootSymbolId);
@@ -132,8 +142,6 @@ export class SketchDocument {
     this.symbolMap[data.name] = data;
 
 
-
-
     if (parent) {
       data.parent = parent.$$id;
     }
@@ -141,34 +149,25 @@ export class SketchDocument {
     data.$$maskId = maskId;
 
     const w: any = window;
-    const b: any = w.Buffer;
 
     if (data._class === 'text') {
-      const archiveData: string = data.attributedString.archivedAttributedString._archive;
+
+      const decodedAttributedString = this.parseArchive(data.attributedString.archivedAttributedString._archive);
+      data.decodedTextAttributes = decodedAttributedString;
 
       if (data.style.textStyle) {
-        const arch = data.style.textStyle.encodedAttributes.NSParagraphStyle._archive;
-        const buf2 = b.from(archiveData, 'base64');
-        this.bplistParser.parseFile(buf2, (err, obj) => {
-          if (err) throw err;
-          const parser: NSArchiveParser = new NSArchiveParser();
-          data.___MSAttributedStringFontAttribute = parser.parse(obj);
-        });
-
+        const encodedAttributes: any = data.style.textStyle.encodedAttributes;
+        const decodedNSColor: any = this.parseArchive(encodedAttributes.NSColor._archive);
+        const decodedNSParagraphStyle: any = this.parseArchive(encodedAttributes.NSParagraphStyle._archive);
+        const decodedMSAttributedStringFontAttribute: any = this.parseArchive(encodedAttributes.MSAttributedStringFontAttribute._archive);
+        console.log('decodedNSColor ', decodedNSColor);
+        console.log('decodedNSParagraphStyle ', decodedNSParagraphStyle);
+        console.log('decodedMSAttributedStringFontAttribute ', decodedMSAttributedStringFontAttribute);
       }
 
 
-      const buf = b.from(archiveData, 'base64');
-
-
-      this.bplistParser.parseFile(buf, function (err, obj) {
-        if (err) throw err;
-        const parser: NSArchiveParser = new NSArchiveParser();
-        data.decodedTextAttributes = parser.parse(obj);
-      });
-
-      if (data.decodedTextAttributes.NSAttributes && data.decodedTextAttributes.NSAttributes.NSColor) {
-        const colorArray = data.decodedTextAttributes.NSAttributes.NSColor.NSRGB.toString().split(' ');
+      if (decodedAttributedString.NSAttributes.NSColor) {
+        const colorArray = decodedAttributedString.NSAttributes.NSColor.NSRGB.toString().split(' ');
         const colors: any = {};
         colors.red = parseFloat(colorArray[0]);
         colors.green = parseFloat(colorArray[1]);
@@ -183,10 +182,10 @@ export class SketchDocument {
 
       }
 
-      if (data.decodedTextAttributes.NSAttributes.NSParagraphStyle) {
-        const paragraphSpacing = data.decodedTextAttributes.NSAttributes.NSParagraphStyle.NSParagraphSpacing;
-        const maxLineHeight = data.decodedTextAttributes.NSAttributes.NSParagraphStyle.NSMaxLineHeight;
-        const minLineHeight = data.decodedTextAttributes.NSAttributes.NSParagraphStyle.NSMinLineHeight;
+      if (decodedAttributedString.NSAttributes.NSParagraphStyle) {
+        const paragraphSpacing = decodedAttributedString.NSAttributes.NSParagraphStyle.NSParagraphSpacing;
+        const maxLineHeight = decodedAttributedString.NSAttributes.NSParagraphStyle.NSMaxLineHeight;
+        const minLineHeight = decodedAttributedString.NSAttributes.NSParagraphStyle.NSMinLineHeight;
         const lineHeight = minLineHeight;
         data.$$paragraphSpacing = paragraphSpacing;
         data.$$minLineHeight = minLineHeight;
@@ -197,12 +196,24 @@ export class SketchDocument {
 
       data.$$fontSize = this.getFontSize(data);
       data.$$fontFamily = this.getFontFamily(data);
-      data.$$text = data.decodedTextAttributes.NSString;
+      data.$$text = decodedAttributedString.NSString;
+
       const p: any = this.getLayerCoords(data, rootSymbolId);
       data.$$x = p.x;
       data.$$y = p.y + data.$$fontSize; // is this the baseline? SVG text is positioned at baseline not top/left...
       data.$$transform = this.getTransformation(data, rootSymbolId);
 
+      let lines: Array<any> = data.$$text.split('\n');
+      lines = lines.map((l: string, index: number) => {
+        return {
+          text: l,
+          y: index * data.$$lineHeight,
+          x: p.x
+        };
+      });
+
+      data.$$textLines = lines;
+      data.$$hasTextLines = data.$$textLines.length > 0;
 
     }
 
@@ -245,7 +256,6 @@ export class SketchDocument {
     }
 
 
-
     if (data._class === 'bitmap') {
       data.$$imageData = this.getImageData(data);
       const p: any = this.getLayerCoords(data, rootSymbolId);
@@ -277,7 +287,7 @@ export class SketchDocument {
         l.$$isRect = this.isRect(l, data);
         l.$$isLine = this.isLine(l.path);
         l.$$isCircle = this.isCircle(l.path, data);
-        if (l.booleanOperation>=0) {
+        if (l.booleanOperation >= 0) {
           l.$$isCircle = false;
           l.$$isRect = false;
           l.$$isLine = false;
@@ -359,7 +369,7 @@ export class SketchDocument {
         }
 
 
-        console.log("Draw as " + l.name+" :", l.$$drawAsPath, l.$$drawAsRect, l.$$drawAsCircle, l.$$drawAsLine, "No Draw " + l.$$noDraw);
+        console.log("Draw as " + l.name + " :", l.$$drawAsPath, l.$$drawAsRect, l.$$drawAsCircle, l.$$drawAsLine, "No Draw " + l.$$noDraw);
 
 
       });
@@ -371,10 +381,7 @@ export class SketchDocument {
     }
 
 
-
     if (data.layers) {
-
-
 
 
       let hasClippingMask = false;
@@ -534,10 +541,10 @@ export class SketchDocument {
           paperPath = paperPath.intersect(shape);
         } else if (b.booleanOperation === 3) {
           paperPath = paperPath.exclude(shape);
-        } else if(b.booleanOperation === 0) {
+        } else if (b.booleanOperation === 0) {
           console.log("UNITE! ", layer.name);
           paperPath = paperPath.unite(shape, {insert: false});
-        }else {
+        } else {
           paperPath = paperPath.subtract(shape);
         }
       });

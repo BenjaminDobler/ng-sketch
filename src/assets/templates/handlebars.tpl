@@ -12,10 +12,10 @@
       <feMergeNode in="SourceGraphic"/> <!-- this contains the element that the filter is applied to -->
     </feMerge>
     -->
-    <feMorphology radius="2.5" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
+    <feMorphology radius="0" operator="dilate" in="SourceAlpha" result="shadowSpreadOuter1"></feMorphology>
                 <feOffset dx="{{offsetX}}" dy="{{offsetY}}" in="shadowSpreadOuter1" result="shadowOffsetOuter1"></feOffset>
                 <feGaussianBlur stdDeviation="{{spread}}" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
-                <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+                <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.3 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
 
                 <feMerge>
                       <feMergeNode/> <!-- this contains the offset blurred image -->
@@ -100,7 +100,14 @@
 
 {{#if $$text}}
 <text id="{{$$id}}" fill="{{$$fontColor}}" fill-opacity="{{$$fillOpacity}}" font-size="{{$$fontSize}}" font-family="{{$$fontFamily}}" x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" mask="url(#mask{{$$maskId}})" >
+  {{#unless $$hasTextLines}}
   {{decodedTextAttributes.NSString}}
+  {{/unless}}
+  {{#if $$hasTextLines}}
+    {{#each $$textLines}}
+      <tspan x="{{x}}" y="{{y}}">{{text}}</tspan>
+    {{/each}}
+  {{/if}}
 </text>
 
 {{/if}}

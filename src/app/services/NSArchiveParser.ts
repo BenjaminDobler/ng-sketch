@@ -11,6 +11,7 @@ export class NSArchiveParser {
     let result: any = {};
 
     let objects = archive[0].$objects;
+    console.log("Objects ", objects);
     let root = archive[0].$top.root.UID;
 
     let getReferenceById = (id) => {
