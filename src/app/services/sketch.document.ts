@@ -333,29 +333,40 @@ export class SketchDocument {
 
     if (data.style && data.style.fills && data.style.fills.length > 0) {
       if (data.style.fills[0].gradient) {
-        const gradient = data.style.fills[0].gradient;
-        const linearGradient: any = {};
-        linearGradient.gradientType = gradient.gradientType;
-        const from = this.toPoint(gradient.from);
-        const to = this.toPoint(gradient.to);
-        linearGradient.x1 = from.x * 100 + '%';
-        linearGradient.x2 = to.x * 100 + '%';
-        linearGradient.y1 = from.y * 100 + '%';
-        linearGradient.y2 = to.y * 100 + '%';
-        linearGradient.stops = [];
-        linearGradient.id = 'gradient-' + data.$$id;
+        data.gradients = [];
+        data.style.fills.forEach((fill)=>{
+          const gradient = fill.gradient;
+          console.log("Gradient ", gradient)
 
-        gradient.stops.forEach((stop) => {
-          const hex: string = this.colorToHex(stop.color);
-          linearGradient.stops.push({
-            color: hex,
-            offset: stop.position * 100 + '%',
-            opacity: stop.color.alpha
+
+          const linearGradient: any = {};
+          linearGradient.gradientType = gradient.gradientType;
+          const from = this.toPoint(gradient.from);
+          const to = this.toPoint(gradient.to);
+          linearGradient.x1 = from.x * 100 + '%';
+          linearGradient.x2 = to.x * 100 + '%';
+          linearGradient.y1 = from.y * 100 + '%';
+          linearGradient.y2 = to.y * 100 + '%';
+          linearGradient.stops = [];
+          linearGradient.id = 'gradient-' + data.$$id;
+
+          gradient.stops.forEach((stop) => {
+            const hex: string = this.colorToHex(stop.color);
+            const s:any = {
+              color: hex,
+              offset: stop.position * 100 + '%',
+              opacity: stop.color.alpha
+            };
+            console.log("Stop ", s);
+
+            linearGradient.stops.push(s);
+
           });
+          data.gradients.push(linearGradient);
 
         });
 
-        data.gradients = [linearGradient];
+        //data.gradients = [linearGradient];
 
         data.linearGradients = data.gradients.filter(x => x.gradientType === 0);
         data.radialGradients = data.gradients.filter(x => x.gradientType === 1);

@@ -37,7 +37,7 @@
     </mask>
   {{/each}}
 
-  {{#if $$shapeGroup}}
+
     {{#each linearGradients}}
       <linearGradient id="{{id}}" x1="{{x1}}" x2="{{x2}}" y1="{{y1}}" y2="{{y2}}">
         {{#each stops}}
@@ -54,6 +54,7 @@
           </radialGradient>
     {{/each}}
 
+<!--{{#if $$shapeGroup}}-->
     {{#each layers}}
       {{#if $$drawAsCircle}}
         <circle id="{{$$id}}" cx="{{$$cx}}" cy="{{$$cy}}" r="{{$$radius}}"></circle>
@@ -69,7 +70,7 @@
       {{/if}}
     {{/each}}
 
-  {{/if}}
+  <!--{{/if}}-->
 </defs>
 <!-- END DEFS -->
 {{/if}}
@@ -96,6 +97,12 @@
 
 {{#if $$bitmap}}
   <image id="{{$$id}}" x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" xlink:href="{{$$imageData}}" mask="url(#mask{{$$maskId}})"> </image>
+  {{#each linearGradients}}
+  <rect fill="url(#{{id}})" x="{{../$$x}}" y="{{../$$y}}" rx="{{../$$rx}}" width="{{../frame.width}}" height="{{../frame.height}}" transform="{{../$$transform}}"></rect>
+
+    {{/each}}
+
+
 {{/if}}
 
 {{#if $$text}}
