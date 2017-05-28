@@ -5,6 +5,7 @@
 
 import {NSArchiveParser} from './NSArchiveParser';
 import {SketchLoaderResult} from "./sketch.loader";
+import {CENTER_ALIGN, RIGHT_ALIGN} from "./sketch.types";
 
 //import Handlebars;
 
@@ -139,6 +140,13 @@ export class SketchDocument {
     data.$$shapeGroup = data._class === 'shapeGroup';
     data.$$bitmap = data._class === 'bitmap';
     data.$$text = data._class === 'text';
+    data.$$artboard = data._class === 'artboard';
+
+    data.$$artboardMasks = [];
+    data.$$artboardMasks.push();
+
+    console.log("IS ARTBOARD ", data.$$artboard);
+
     this.symbolMap[data.name] = data;
 
 
@@ -149,6 +157,12 @@ export class SketchDocument {
     data.$$maskId = maskId;
 
     const w: any = window;
+
+    if (data.$$artboard) {
+      const p: any = this.getLayerCoords(data, rootSymbolId);
+      data.$$x = p.x;
+      data.$$y = p.y;
+    }
 
     if (data._class === 'text') {
 
@@ -186,6 +200,12 @@ export class SketchDocument {
         const paragraphSpacing = decodedAttributedString.NSAttributes.NSParagraphStyle.NSParagraphSpacing;
         const maxLineHeight = decodedAttributedString.NSAttributes.NSParagraphStyle.NSMaxLineHeight;
         const minLineHeight = decodedAttributedString.NSAttributes.NSParagraphStyle.NSMinLineHeight;
+        if (decodedAttributedString.NSAttributes.NSParagraphStyle.NSAlignment) {
+          console.log("ALIGNMENT!!!! ");
+          data.$$align = decodedAttributedString.NSAttributes.NSParagraphStyle.NSAlignment;
+        } else {
+          data.$$align = 0;
+        }
         const lineHeight = minLineHeight;
         data.$$paragraphSpacing = paragraphSpacing;
         data.$$minLineHeight = minLineHeight;
@@ -194,9 +214,82 @@ export class SketchDocument {
       }
 
 
+      let getLineHeight = (family, size, text: string = 'T') => {
+        var temp = document.createElement('p');
+        temp.setAttribute("style", "margin:0px;padding:0px;font-family:" + family + ";font-size:" + size + "px;display:inline-block");
+        temp.innerHTML = text;
+        document.querySelector('body').appendChild(temp);
+
+        //temp.parentNode.removeChild(temp);
+        return {
+          w: temp.clientWidth,
+          h: temp.clientHeight
+        };
+      }
+
+
+      let fontBaseline = (family, size) => {
+
+        var container: any = document.createElement('p');
+        container.setAttribute("style", "margin:0px;padding:0px;font-family:" + family + ";font-size:" + size + "px");
+        container.innerHTML = "test"
+        document.querySelector('body').appendChild(container);
+
+        var div = document.createElement('div'),
+          style: any = document.createElement('style'),
+          strut = document.createElement('span'),
+          computedStyle, baselineHeight, strutHeight, fontSize, lineHeight;
+
+        container = container || document.body;
+
+        // Webkit hack: http://davidwalsh.name/add-rules-stylesheets
+        style.appendChild(document.createTextNode(''));
+        document.head.appendChild(style);
+        style.sheet.insertRule('.font-baseline{visibility:hidden;height:100px;}', 0);
+        style.sheet.insertRule('.font-baseline span:after{content:\'\';height:100%;display:inline-block;}', 1);
+
+        // Thanks to Alan Stearns for the hack!
+        // http://blogs.adobe.com/webplatform/2014/08/13/one-weird-trick-to-baseline-align-text/
+        strut.textContent = 'T';
+        div.appendChild(strut);
+        div.classList.add('font-baseline');
+        container.appendChild(div);
+
+        computedStyle = window.getComputedStyle(strut);
+        fontSize = parseInt(computedStyle.fontSize, 10);
+        lineHeight = parseInt(computedStyle.lineHeight, 10);
+
+        strut.style.lineHeight = '0';
+
+        strutHeight = strut.offsetHeight;
+        baselineHeight = strut.offsetTop + strutHeight - div.offsetHeight - div.offsetTop;
+
+        lineHeight = lineHeight || strutHeight;
+
+        div.parentNode.removeChild(div);
+        style.parentNode.removeChild(style);
+
+        return {
+          baseline: baselineHeight,
+          content: strutHeight,
+          font: fontSize,
+          line: lineHeight,
+          multiplier: fontSize / strutHeight,
+          offset: ((lineHeight - strutHeight) / 2) + baselineHeight
+        };
+      }
+
+
       data.$$fontSize = this.getFontSize(data);
       data.$$fontFamily = this.getFontFamily(data);
       data.$$text = decodedAttributedString.NSString;
+
+      let b: any = fontBaseline(data.$$fontFamily, data.$$fontSize);
+      console.log("B", b);
+
+
+      let lineHeight = getLineHeight(data.$$fontFamily, data.$$fontSize).h;
+      console.log("Line Height ", lineHeight);
 
       const p: any = this.getLayerCoords(data, rootSymbolId);
       data.$$x = p.x;
@@ -206,20 +299,35 @@ export class SketchDocument {
       let lines: Array<any> = data.$$text.split('\n');
 
       lines = lines.map((l: string, index: number) => {
-        let lHeight = data.$$lineHeight || '1em';
-        let y:any = '1.4em';
+        const w = getLineHeight(data.$$fontFamily, data.$$fontSize, l).w;
+        console.log("Line Width ", w);
+        let y: any = lineHeight;
         if (data.$$lineHeight) {
-          y = index * data.$$lineHeight;
+          y = (index * lineHeight) - data.$$fontSize;//data.$$lineHeight;
         }
-        return {
+
+        const res: any = {
           text: l,
           y: y,
           x: p.x
         };
+        if (data.$$align === RIGHT_ALIGN) {
+          res.x = p.x + data.frame.width - w;
+        }
+        if (data.$$align === CENTER_ALIGN) {
+          res.x = p.x + ((data.frame.width - w) / 2);
+        }
+        return res;
+
+
       });
 
       data.$$textLines = lines;
       data.$$hasTextLines = data.$$textLines.length > 0;
+      if (data.$$hasTextLines) {
+        data.$$y = p.y;
+        data.$$textLines[0].y = data.$$fontSize;
+      }
 
     }
 

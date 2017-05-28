@@ -114,5 +114,16 @@
 
 
 {{#each layers}}
+
+{{#if $$artboard}}
+<defs>
+<clipPath id="artboardmask-{{$$id}}">
+  <rect  x="{{$$x}}" y="{{$$y}}" rx="{{$$rx}}" width="{{frame.width}}" height="{{frame.height}}" transform="{{$$transform}}" />
+  </clipPath>
+</defs>
+{{/if}}
+
+<g {{#if $$artboard}}clip-path='url(#artboardmask-{{$$id}})'{{/if}}>
   {{> layer}}
+  </g>
 {{/each}}

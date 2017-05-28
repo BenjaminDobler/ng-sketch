@@ -11,10 +11,14 @@
  */
 
 
+export const RIGHT_ALIGN: number = 1;
+export const CENTER_ALIGN: number = 2;
+
+
 export const SKETCH_LAYER_TYPE_TEXT: string = 'text';
 
 
-interface SketchImageCollection {
+export interface SketchImageCollection {
   _class: string;// 'imageCollection';
   images: any; // TODO
 }
@@ -455,19 +459,19 @@ export interface SketchOval {
 }
 
 /*
-export interface SketchLayer
-=
-|
-SketchText
-| SketchShapeGroup
-| SketchShapePath
-| SketchBitmap
-| SketchArtboard
-| SketchSymbolInstance
-| SketchGroup
-| SketchRectangle
-| SketchOval
-*/
+ export interface SketchLayer
+ =
+ |
+ SketchText
+ | SketchShapeGroup
+ | SketchShapePath
+ | SketchBitmap
+ | SketchArtboard
+ | SketchSymbolInstance
+ | SketchGroup
+ | SketchRectangle
+ | SketchOval
+ */
 export interface SketchSymbolMaster {
   backgroundColor: SketchColor;
   _class: string; //symbolMaster';
@@ -567,4 +571,4 @@ export interface SketchMeta {
  cloudShare: any // TODO
  }
  }
-*/
+ */
