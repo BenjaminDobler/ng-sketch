@@ -334,10 +334,8 @@ export class SketchDocument {
     if (data.style && data.style.fills && data.style.fills.length > 0) {
       if (data.style.fills[0].gradient) {
         data.gradients = [];
-        data.style.fills.forEach((fill)=>{
+        data.style.fills.forEach((fill, index:number)=>{
           const gradient = fill.gradient;
-          console.log("Gradient ", gradient)
-
 
           const linearGradient: any = {};
           linearGradient.gradientType = gradient.gradientType;
@@ -348,7 +346,7 @@ export class SketchDocument {
           linearGradient.y1 = from.y * 100 + '%';
           linearGradient.y2 = to.y * 100 + '%';
           linearGradient.stops = [];
-          linearGradient.id = 'gradient-' + data.$$id;
+          linearGradient.id = 'gradient-' + data.$$id + '-' + index;
 
           gradient.stops.forEach((stop) => {
             const hex: string = this.colorToHex(stop.color);
