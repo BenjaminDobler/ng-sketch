@@ -89,6 +89,28 @@
       fill-rule="evenodd"
       fill-opacity="{{../$$opacity}}"
       xlink:href="#{{$$id}}"></use>
+
+      {{#each ../fills}}
+          {{#if isLinearGradient}}
+            <use
+                mask="url(#mask{{../$$maskId}})"
+                fill="url(#{{id}})"
+                fill-rule="evenodd"
+                opacity="{{opacity}}"
+                xlink:href="#{{../$$id}}"></use>
+          {{/if}}
+          {{#if isFlatColor}}
+              <use
+                              mask="url(#mask{{../$$maskId}})"
+                              fill="{{color}}"
+                              fill-rule="evenodd"
+                              opacity="{{opacity}}"
+                              xlink:href="#{{../$$id}}"></use>
+          {{/if}}
+        {{/each}}
+
+
+
       {{/unless}}
     {{/each}}
   </g>
