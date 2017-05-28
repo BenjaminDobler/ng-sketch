@@ -145,8 +145,6 @@ export class SketchDocument {
     data.$$artboardMasks = [];
     data.$$artboardMasks.push();
 
-    console.log("IS ARTBOARD ", data.$$artboard);
-
     this.symbolMap[data.name] = data;
 
 
@@ -174,9 +172,6 @@ export class SketchDocument {
         const decodedNSColor: any = this.parseArchive(encodedAttributes.NSColor._archive);
         const decodedNSParagraphStyle: any = this.parseArchive(encodedAttributes.NSParagraphStyle._archive);
         const decodedMSAttributedStringFontAttribute: any = this.parseArchive(encodedAttributes.MSAttributedStringFontAttribute._archive);
-        console.log('decodedNSColor ', decodedNSColor);
-        console.log('decodedNSParagraphStyle ', decodedNSParagraphStyle);
-        console.log('decodedMSAttributedStringFontAttribute ', decodedMSAttributedStringFontAttribute);
       }
 
 
@@ -201,7 +196,6 @@ export class SketchDocument {
         const maxLineHeight = decodedAttributedString.NSAttributes.NSParagraphStyle.NSMaxLineHeight;
         const minLineHeight = decodedAttributedString.NSAttributes.NSParagraphStyle.NSMinLineHeight;
         if (decodedAttributedString.NSAttributes.NSParagraphStyle.NSAlignment) {
-          console.log("ALIGNMENT!!!! ");
           data.$$align = decodedAttributedString.NSAttributes.NSParagraphStyle.NSAlignment;
         } else {
           data.$$align = 0;
@@ -285,11 +279,9 @@ export class SketchDocument {
       data.$$text = decodedAttributedString.NSString;
 
       let b: any = fontBaseline(data.$$fontFamily, data.$$fontSize);
-      console.log("B", b);
 
 
       let lineHeight = getLineHeight(data.$$fontFamily, data.$$fontSize).h;
-      console.log("Line Height ", lineHeight);
 
       const p: any = this.getLayerCoords(data, rootSymbolId);
       data.$$x = p.x;
@@ -300,7 +292,6 @@ export class SketchDocument {
 
       lines = lines.map((l: string, index: number) => {
         const w = getLineHeight(data.$$fontFamily, data.$$fontSize, l).w;
-        console.log("Line Width ", w);
         let y: any = lineHeight;
         if (data.$$lineHeight) {
           y = (index * lineHeight) - data.$$fontSize;//data.$$lineHeight;
@@ -332,45 +323,53 @@ export class SketchDocument {
     }
 
     if (data.style && data.style.fills && data.style.fills.length > 0) {
-      if (data.style.fills[0].gradient) {
+      //if (data.style.fills[0].gradient) {
         data.gradients = [];
-        data.style.fills.forEach((fill, index:number)=>{
-          const gradient = fill.gradient;
+        data.fills = [];
+        data.style.fills.forEach((fill, index: number) => {
+          if (fill.fillType === 1 || fill.fillType === 2) {
+            const gradient = fill.gradient;
+            const linearGradient: any = {};
+            linearGradient.gradientType = gradient.gradientType;
+            const from = this.toPoint(gradient.from);
+            const to = this.toPoint(gradient.to);
+            linearGradient.x1 = from.x * 100 + '%';
+            linearGradient.x2 = to.x * 100 + '%';
+            linearGradient.y1 = from.y * 100 + '%';
+            linearGradient.y2 = to.y * 100 + '%';
+            linearGradient.stops = [];
+            linearGradient.id = 'gradient-' + data.$$id + '-' + index;
+            linearGradient.isLinearGradient = true;
 
-          const linearGradient: any = {};
-          linearGradient.gradientType = gradient.gradientType;
-          const from = this.toPoint(gradient.from);
-          const to = this.toPoint(gradient.to);
-          linearGradient.x1 = from.x * 100 + '%';
-          linearGradient.x2 = to.x * 100 + '%';
-          linearGradient.y1 = from.y * 100 + '%';
-          linearGradient.y2 = to.y * 100 + '%';
-          linearGradient.stops = [];
-          linearGradient.id = 'gradient-' + data.$$id + '-' + index;
+            gradient.stops.forEach((stop) => {
+              const hex: string = this.colorToHex(stop.color);
+              const s: any = {
+                color: hex,
+                offset: stop.position * 100 + '%',
+                opacity: stop.color.alpha
+              };
+              linearGradient.stops.push(s);
 
-          gradient.stops.forEach((stop) => {
-            const hex: string = this.colorToHex(stop.color);
-            const s:any = {
-              color: hex,
-              offset: stop.position * 100 + '%',
-              opacity: stop.color.alpha
-            };
-            console.log("Stop ", s);
+            });
+            data.gradients.push(linearGradient);
+            linearGradient.fillType = fill.fillType;
+            data.fills.push(linearGradient);
 
-            linearGradient.stops.push(s);
+          } else if(fill.fillType === 0) {
+            data.fills.push({isFlatColor:true,fillType:0,color: this.colorToHex(fill.color),opacity: fill.color.alpha});
 
-          });
-          data.gradients.push(linearGradient);
+          }
+
+
 
         });
-
-        //data.gradients = [linearGradient];
-
         data.linearGradients = data.gradients.filter(x => x.gradientType === 0);
+        console.log("Linear Gradients ", data.linearGradients);
         data.radialGradients = data.gradients.filter(x => x.gradientType === 1);
+        data.$$hasMultipleFills = data.fills.length > 1;
 
 
-      }
+      //}
     }
 
 
@@ -464,10 +463,6 @@ export class SketchDocument {
         l.$$y = p.y;
         l.$$transform = this.getTransformation(l, rootSymbolId);
 
-
-        console.log("Boolean Operations ", l.booleanOperation);
-        console.log("Is Rect= ", l.$$isRect);
-
         if (l.$$isRect && l.booleanOperation <= 0) {
           l.$$drawAsRect = true;
         }
@@ -490,10 +485,6 @@ export class SketchDocument {
           l.$$drawAsLine = false;
           l.$$drawAsCircle = false;
         }
-
-
-        console.log("Draw as " + l.name + " :", l.$$drawAsPath, l.$$drawAsRect, l.$$drawAsCircle, l.$$drawAsLine, "No Draw " + l.$$noDraw);
-
 
       });
 
@@ -587,7 +578,6 @@ export class SketchDocument {
 
 
   getPath(layer, symbolId) {
-    console.log("Get Path ", layer.name);
     const points: Array<any> = [];
     layer.path.points.forEach((x) => {
       points.push({
@@ -631,7 +621,6 @@ export class SketchDocument {
       const paper: any = w.paper;
       let paperPath = new paper.Path(path);
       paperPath.rotate(layer.rotation);
-      console.log("Path ", path)
 
 
       let operations = layer.booleanOperationObjects.map(x => x.booleanOperation);
@@ -650,22 +639,16 @@ export class SketchDocument {
           rect.height = b.frame.height;
           shape = paper.Path.Rectangle(rect.x, rect.y, rect.width, rect.height);
 
-          //shape.rotate(0,141, 113.16666666666663);
-          //console.log("BBBBB", b.$$transform);
-          console.log(b);
         } else {
           shape = new paper.Path(this.getPath(b, symbolId));
         }
 
-        console.log("Shape ", shape);
 
-        console.log("Boolean operation ", b.booleanOperation);
         if (b.booleanOperation === 2) {
           paperPath = paperPath.intersect(shape);
         } else if (b.booleanOperation === 3) {
           paperPath = paperPath.exclude(shape);
         } else if (b.booleanOperation === 0) {
-          console.log("UNITE! ", layer.name);
           paperPath = paperPath.unite(shape, {insert: false});
         } else {
           paperPath = paperPath.subtract(shape);
@@ -827,7 +810,7 @@ export class SketchDocument {
   }
 
   getFill(data) {
-    if (!data.gradients) {
+    if (!data.gradients || data.gradients.length === 0) {
       return this.getFillColor(data);
     } else {
       return 'url(#' + data.gradients[0].id + ')';
