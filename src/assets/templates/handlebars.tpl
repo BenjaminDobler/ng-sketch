@@ -1,6 +1,15 @@
 {{#if hasDefs}}
 <!-- START DEFS -->
 <defs>
+
+
+  {{#if style.blur}}
+  <filter x="-4.4%" y="-10.3%" width="108.7%" height="124.5%" filterUnits="objectBoundingBox" id="{{$$id}}-blur">
+       <feGaussianBlur stdDeviation="{{style.blur.radius}}" in="SourceGraphic"></feGaussianBlur>
+   </filter>
+  {{/if}}
+
+
   {{#each style.shadows}}
 
   <filter id="filter-{{../$$id}}" height="140%" width="140%">
@@ -77,7 +86,7 @@
 
 <!-- START USE -->
 {{#if $$shapeGroup}}
-  <g>
+  <g {{#if style.blur}}filter="url(#{{$$id}}-blur)"{{/if}}>
     {{#each layers}}
     {{#unless $$noDraw}}
       <use
