@@ -3,6 +3,12 @@
 <defs>
 
 
+
+  {{#each style.innerShadows}}
+
+
+  {{/each}}
+
   {{#if style.blur}}
   <filter x="-4.4%" y="-10.3%" width="108.7%" height="124.5%" filterUnits="objectBoundingBox" id="{{$$id}}-blur">
        <feGaussianBlur stdDeviation="{{style.blur.radius}}" in="SourceGraphic"></feGaussianBlur>

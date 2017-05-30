@@ -327,37 +327,45 @@ export class SketchDocument {
         data.gradients = [];
         data.fills = [];
         data.style.fills.forEach((fill, index: number) => {
-          if (fill.fillType === 1 || fill.fillType === 2) {
-            const gradient = fill.gradient;
-            const linearGradient: any = {};
-            linearGradient.gradientType = gradient.gradientType;
-            const from = this.toPoint(gradient.from);
-            const to = this.toPoint(gradient.to);
-            linearGradient.x1 = from.x * 100 + '%';
-            linearGradient.x2 = to.x * 100 + '%';
-            linearGradient.y1 = from.y * 100 + '%';
-            linearGradient.y2 = to.y * 100 + '%';
-            linearGradient.stops = [];
-            linearGradient.id = 'gradient-' + data.$$id + '-' + index;
-            linearGradient.isLinearGradient = true;
+          console.log("Fill Enabled ", fill.isEnabled);
+          if (fill.isEnabled) {
+            if (fill.fillType === 1 || fill.fillType === 2) {
+              const gradient = fill.gradient;
+              const linearGradient: any = {};
+              linearGradient.gradientType = gradient.gradientType;
+              const from = this.toPoint(gradient.from);
+              const to = this.toPoint(gradient.to);
+              linearGradient.x1 = from.x * 100 + '%';
+              linearGradient.x2 = to.x * 100 + '%';
+              linearGradient.y1 = from.y * 100 + '%';
+              linearGradient.y2 = to.y * 100 + '%';
+              linearGradient.stops = [];
+              linearGradient.id = 'gradient-' + data.$$id + '-' + index;
+              linearGradient.isLinearGradient = true;
 
-            gradient.stops.forEach((stop) => {
-              const hex: string = this.colorToHex(stop.color);
-              const s: any = {
-                color: hex,
-                offset: stop.position * 100 + '%',
-                opacity: stop.color.alpha
-              };
-              linearGradient.stops.push(s);
+              gradient.stops.forEach((stop) => {
+                const hex: string = this.colorToHex(stop.color);
+                const s: any = {
+                  color: hex,
+                  offset: stop.position * 100 + '%',
+                  opacity: stop.color.alpha
+                };
+                linearGradient.stops.push(s);
 
-            });
-            data.gradients.push(linearGradient);
-            linearGradient.fillType = fill.fillType;
-            data.fills.push(linearGradient);
+              });
+              data.gradients.push(linearGradient);
+              linearGradient.fillType = fill.fillType;
+              data.fills.push(linearGradient);
 
-          } else if(fill.fillType === 0) {
-            data.fills.push({isFlatColor:true,fillType:0,color: this.colorToHex(fill.color),opacity: fill.color.alpha});
+            } else if (fill.fillType === 0) {
+              data.fills.push({
+                isFlatColor: true,
+                fillType: 0,
+                color: this.colorToHex(fill.color),
+                opacity: fill.color.alpha
+              });
 
+            }
           }
 
 
