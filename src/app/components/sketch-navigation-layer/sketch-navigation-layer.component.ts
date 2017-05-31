@@ -8,28 +8,41 @@ import {SketchService} from "../../services/sketch.service";
 })
 export class SketchNavigationLayerComponent implements OnInit {
 
-  constructor(private sketchService:SketchService) { }
+  constructor(private sketchService: SketchService) {
+  }
 
 
-  public open:boolean = false;
+  public open: boolean = false;
 
   @Input()
-  set data(value:any) {
+  set data(value: any) {
     this._data = value;
     if (!this._data.$$level) {
       this.open = true;
     }
   }
 
-  get data():any  {
+  get data(): any {
     return this._data;
   }
 
-  getPadding():string {
+  getPadding(): string {
     return (this._data.$$level * 20) + 'px';
   }
 
-  private _data:any;
+  private _data: any;
+
+
+  toggleVisibility(data) {
+    data.$$hidden = !data.$$hidden
+    console.log("Data ", data.$$id);
+    let el: any = document.querySelector('svg').querySelectorAll("[id='" + data.$$id + "']")[0];
+    if (data.$$hidden) {
+      el.style.visibility = 'hidden';
+    } else {
+      el.style.visibility = 'visible';
+    }
+  }
 
   highlight(layer) {
     if (layer._class === 'page') {
@@ -43,7 +56,6 @@ export class SketchNavigationLayerComponent implements OnInit {
     //console.log(this.sketchService.selectedDocument.getLayerSymbol(layer.name));
     //this.sketchService.selectedSymbolId = layer.name;
   }
-
 
 
   ngOnInit() {

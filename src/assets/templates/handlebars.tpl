@@ -92,7 +92,7 @@
 
 <!-- START USE -->
 {{#if $$shapeGroup}}
-  <g {{#if style.blur}}filter="url(#{{$$id}}-blur)"{{/if}}>
+  <g id="{{$$id}}" {{#if style.blur}}filter="url(#{{$$id}}-blur)"{{/if}}>
     {{#each layers}}
     {{#unless $$noDraw}}
       <use
@@ -169,7 +169,7 @@
 </defs>
 {{/if}}
 
-<g {{#if $$artboard}}clip-path='url(#artboardmask-{{$$id}})'{{/if}}>
+<g id="{{$$id}}" {{#if $$artboard}}clip-path='url(#artboardmask-{{$$id}})'{{/if}}>
   {{> layer}}
   </g>
 {{/each}}

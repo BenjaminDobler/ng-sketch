@@ -169,9 +169,9 @@ export class SketchDocument {
 
       if (data.style.textStyle) {
         const encodedAttributes: any = data.style.textStyle.encodedAttributes;
-        const decodedNSColor: any = this.parseArchive(encodedAttributes.NSColor._archive);
-        const decodedNSParagraphStyle: any = this.parseArchive(encodedAttributes.NSParagraphStyle._archive);
-        const decodedMSAttributedStringFontAttribute: any = this.parseArchive(encodedAttributes.MSAttributedStringFontAttribute._archive);
+        //const decodedNSColor: any = this.parseArchive(encodedAttributes.NSColor._archive);
+        //const decodedNSParagraphStyle: any = this.parseArchive(encodedAttributes.NSParagraphStyle._archive);
+        //const decodedMSAttributedStringFontAttribute: any = this.parseArchive(encodedAttributes.MSAttributedStringFontAttribute._archive);
       }
 
 
