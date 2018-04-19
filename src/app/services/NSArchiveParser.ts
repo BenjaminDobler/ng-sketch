@@ -48,6 +48,11 @@ export class NSArchiveParser {
           let obj = getReferenceById(o['NS.objects'][index].UID);
           r[key] = obj;
         });
+      } else if (o["NS.objects"] && !o["NS.keys"]) {
+        o["NS.objects"].forEach((valObj, index) => {
+          var obj = getReferenceById(o["NS.objects"][index].UID);
+          r = { ...r, ...obj };
+        });
       }
       return r;
     };
